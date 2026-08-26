@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  .input-field {
+    @apply w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 shadow-sm outline-none transition focus:border-gold-500 focus:ring-2 focus:ring-gold-500/30;
+  }
+  .input-label {
+    @apply mb-1.5 block text-sm font-semibold text-navy-900;
+  }
+}
+
+/* ------------------------- scroll-reveal ------------------------- */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(var(--reveal-y, 26px));
+  transition:
+    opacity 0.8s ease,
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+.reveal.revealed {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal.revealed {
+    transition: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* --------------------- hero ambient animations -------------------- */
+
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-14px); }
+}
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.45; transform: scale(1); }
+  50%      { opacity: 0.85; transform: scale(1.12); }
+}
+@keyframes driftX {
+  0%, 100% { transform: translateX(0); }
+  50%      { transform: translateX(22px); }
+}
+@keyframes cueBounce {
+  0%, 100% { transform: translateY(0);   opacity: 0.9; }
+  50%      { transform: translateY(10px); opacity: 0.4; }
+}
+@keyframes shimmerText {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+
+/* Mobile: hero plays like a muted looping "video" until first scroll */
+.hero-mobile .auto-anim {
+  animation: floaty 5s ease-in-out infinite;
+}
+.hero-mobile .auto-glow {
+  animation: pulseGlow 8s ease-in-out infinite;
+}
+.hero-mobile .auto-drift {
+  animation: driftX 11s ease-in-out infinite;
+}
+.hero-mobile .cue-anim {
+  animation: cueBounce 1.6s ease-in-out infinite;
+}
+/* first scroll detected -> freeze the ambient motion */
+.hero-mobile.hero-paused .auto-anim,
+.hero-mobile.hero-paused .auto-glow,
+.hero-mobile.hero-paused .auto-drift {
+  animation-play-state: paused;
+}
+
+.shimmer-gradient {
+  background-size: 220% 220%;
+  animation: shimmerText 6s ease-in-out infinite;
+}
+
+/* ----------------------------- FAQ ------------------------------- */
+
+.faq details summary::-webkit-details-marker {
+  display: none;
+}
+.faq details[open] .faq-chevron {
+  transform: rotate(180deg);
+}
