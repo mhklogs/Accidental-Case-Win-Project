@@ -63,6 +63,36 @@ export default function AdminDashboard({
             </div>
           </div>
           <div className="flex items-center gap-2">
+            {/* Export dropdown */}
+            <div className="relative group">
+              <button className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-navy-900 transition hover:bg-slate-50">
+                Export ↓
+              </button>
+              <div className="invisible absolute right-0 top-full z-20 mt-1 w-40 rounded-lg border border-slate-200 bg-white py-1 shadow-lifted transition group-hover:visible">
+                {(["csv", "json", "xlsx"] as const).map((fmt) => (
+                  <button
+                    key={fmt}
+                    onClick={async () => {
+                      const token = localStorage.getItem("acw.admin.token");
+                      const res = await fetch(`/api/leads/export?format=${fmt}`, {
+                        headers: { "x-admin-token": token ?? "" },
+                      });
+                      if (!res.ok) return;
+                      const blob = await res.blob();
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement("a");
+                      a.href = url;
+                      a.download = `leads.${fmt}`;
+                      a.click();
+                      URL.revokeObjectURL(url);
+                    }}
+                    className="block w-full px-4 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-50"
+                  >
+                    {fmt.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+            </div>
             <button
               onClick={() => setSettingsOpen(true)}
               className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-navy-900 transition hover:bg-slate-50"

@@ -366,62 +366,167 @@ function QuestionsTab() {
 
 /* -------------------------------- users -------------------------------- */
 
+type UserRow = {
+  username: string;
+  createdAt: string;
+  createdBy: string | null;
+  hasSecurityQuestions: boolean;
+};
+
 function UsersTab() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [users, setUsers] = useState<UserRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [newUser, setNewUser] = useState("");
+  const [newPass, setNewPass] = useState("");
+  const [editTarget, setEditTarget] = useState<string | null>(null);
+  const [editPass, setEditPass] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
 
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    setMessage(null);
-    setBusy(true);
+  async function loadUsers() {
+    setLoading(true);
     try {
-      await apiFetch<{ username: string }>("/api/admin/users", {
+      const res = await apiFetch<{ users: UserRow[] }>("/api/admin/users");
+      setUsers(res.users);
+    } catch { /* silent */ }
+    setLoading(false);
+  }
+
+  useEffect(() => { loadUsers(); }, []);
+
+  async function createUser(e: React.FormEvent) {
+    e.preventDefault();
+    setMessage(null); setBusy(true);
+    try {
+      await apiFetch("/api/admin/users", {
         method: "POST",
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username: newUser, password: newPass }),
       });
-      setMessage({
-        ok: true,
-        text: `Account "${username.toLowerCase()}" created. It can sign in immediately and sees only its own leads.`,
-      });
-      setUsername(""); setPassword("");
+      setMessage({ ok: true, text: `Account "${newUser.toLowerCase()}" created.` });
+      setNewUser(""); setNewPass("");
+      await loadUsers();
     } catch (err) {
-      setMessage({ ok: false, text: err instanceof Error ? err.message : "Creation failed." });
-    } finally {
-      setBusy(false);
-    }
+      setMessage({ ok: false, text: err instanceof Error ? err.message : "Failed." });
+    } finally { setBusy(false); }
+  }
+
+  async function resetPassword() {
+    if (!editTarget || !editPass) return;
+    setMessage(null); setBusy(true);
+    try {
+      await apiFetch("/api/admin/users", {
+        method: "PUT",
+        body: JSON.stringify({ targetUsername: editTarget, newPassword: editPass }),
+      });
+      setMessage({ ok: true, text: `Password updated for "${editTarget}".` });
+      setEditTarget(null); setEditPass("");
+    } catch (err) {
+      setMessage({ ok: false, text: err instanceof Error ? err.message : "Failed." });
+    } finally { setBusy(false); }
+  }
+
+  async function removeUser(target: string) {
+    if (!confirm(`Delete account "${target}"? This cannot be undone.`)) return;
+    setMessage(null); setBusy(true);
+    try {
+      await apiFetch("/api/admin/users", {
+        method: "DELETE",
+        body: JSON.stringify({ targetUsername: target }),
+      });
+      setMessage({ ok: true, text: `Account "${target}" deleted.` });
+      await loadUsers();
+    } catch (err) {
+      setMessage({ ok: false, text: err instanceof Error ? err.message : "Failed." });
+    } finally { setBusy(false); }
   }
 
   return (
-    <form onSubmit={submit} className="space-y-4">
+    <div className="space-y-6">
       <div>
-        <h3 className="font-bold text-navy-900">Create a New User</h3>
+        <h3 className="font-bold text-navy-900">Manage Users</h3>
         <p className="mt-1 text-sm text-slate-500">
-          Each user gets an isolated lead inbox and their own TrustedForm key settings.
-          They can log in from any number of devices at once.
+          Create, reset passwords, or remove dashboard accounts. Each sees only its own leads.
         </p>
       </div>
-      <div>
-        <label htmlFor="nu-user" className="input-label">Username</label>
-        <input id="nu-user" type="text" required value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="e.g. attorney.jane" className="input-field" />
-      </div>
-      <div>
-        <label htmlFor="nu-pass" className="input-label">Initial password (min 8 chars)</label>
-        <input id="nu-pass" type="password" required minLength={8} autoComplete="new-password"
-          value={password} onChange={(e) => setPassword(e.target.value)} className="input-field" />
-      </div>
+
+      {/* user list */}
+      {loading ? (
+        <Loader2 className="mx-auto h-6 w-6 animate-spin text-navy-600" />
+      ) : (
+        <div className="rounded-xl border border-slate-200 divide-y divide-slate-100">
+          {users.map((u) => (
+            <div key={u.username} className="flex items-center justify-between px-4 py-3">
+              <div>
+                <p className="text-sm font-semibold text-navy-900">{u.username}</p>
+                <p className="text-xs text-slate-400">
+                  Joined {new Date(u.createdAt).toLocaleDateString()}
+                  {u.createdBy && ` · by ${u.createdBy}`}
+                </p>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => { setEditTarget(u.username); setEditPass(""); setMessage(null); }}
+                  className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
+                >
+                  Reset Password
+                </button>
+                <button
+                  onClick={() => removeUser(u.username)}
+                  className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* inline password reset */}
+      {editTarget && (
+        <div className="rounded-xl border border-gold-200 bg-gold-50/50 p-4">
+          <p className="text-sm font-semibold text-navy-900">Reset password for {editTarget}</p>
+          <div className="mt-2 flex gap-2">
+            <input
+              type="password" placeholder="New password (min 8)" minLength={8}
+              value={editPass} onChange={(e) => setEditPass(e.target.value)}
+              className="input-field flex-1 text-sm"
+            />
+            <button onClick={resetPassword} disabled={busy || editPass.length < 8}
+              className="rounded-lg bg-navy-900 px-4 py-2 text-sm font-bold text-white transition hover:bg-navy-800 disabled:opacity-50">
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Update"}
+            </button>
+            <button onClick={() => setEditTarget(null)}
+              className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* create new */}
+      <form onSubmit={createUser} className="space-y-3">
+        <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Create new account</p>
+        <div className="flex gap-2">
+          <input type="text" required value={newUser}
+            onChange={(e) => setNewUser(e.target.value)}
+            placeholder="username" className="input-field flex-1 text-sm" />
+          <input type="password" required minLength={8} value={newPass}
+            onChange={(e) => setNewPass(e.target.value)}
+            placeholder="password (min 8)" autoComplete="new-password"
+            className="input-field flex-1 text-sm" />
+          <button type="submit" disabled={busy}
+            className="rounded-lg bg-navy-900 px-4 py-2 text-sm font-bold text-white transition hover:bg-navy-800 disabled:opacity-50">
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create"}
+          </button>
+        </div>
+      </form>
+
       {message && (
         <p className={`rounded-lg px-4 py-3 text-sm font-medium ${message.ok ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>
           {message.text}
         </p>
       )}
-      <button type="submit" disabled={busy}
-        className="inline-flex items-center gap-2 rounded-xl bg-navy-900 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-navy-800 disabled:opacity-50">
-        {busy && <Loader2 className="h-4 w-4 animate-spin" />} Create User
-      </button>
-    </form>
+    </div>
   );
 }

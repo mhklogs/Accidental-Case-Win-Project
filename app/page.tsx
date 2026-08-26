@@ -7,6 +7,7 @@ import {
   Quote,
 } from "lucide-react";
 import Hero from "@/components/home/Hero";
+import Sidebar from "@/components/home/Sidebar";
 import Reveal from "@/components/home/Reveal";
 import Stats from "@/components/home/Stats";
 import TestimonialCard from "@/components/home/TestimonialCard";
@@ -86,6 +87,9 @@ export default function LandingPage({
 
   return (
     <main className="min-h-screen bg-white">
+      {/* Section sidebar — laptop only */}
+      <Sidebar />
+
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-white/10 bg-navy-950/80 backdrop-blur-lg">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
@@ -107,13 +111,15 @@ export default function LandingPage({
       </header>
 
       {/* Hero — scroll-parallax on desktop, looping motion on mobile */}
-      <Hero />
+      <div id="hero">
+        <Hero />
+      </div>
 
       {/* Stats band — counts up + draws the background signal graph on scroll */}
       <Stats />
 
       {/* How it works */}
-      <section className="bg-slate-50 py-16 lg:py-24">
+      <section id="how" className="bg-slate-50 py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <Reveal>
             <h2 className="text-center text-3xl font-extrabold tracking-tight text-navy-950 sm:text-4xl">
@@ -141,7 +147,7 @@ export default function LandingPage({
       </section>
 
       {/* Practice areas */}
-      <section className="bg-white py-16 lg:py-24">
+      <section id="areas" className="bg-white py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <Reveal>
             <h2 className="text-center text-3xl font-extrabold tracking-tight text-navy-950 sm:text-4xl">
@@ -177,7 +183,7 @@ export default function LandingPage({
       </section>
 
       {/* Why choose us */}
-      <section className="relative overflow-hidden bg-navy-950 py-16 lg:py-24">
+      <section id="why" className="relative overflow-hidden bg-navy-950 py-16 lg:py-24">
         <div aria-hidden className="pointer-events-none absolute inset-0">
           <div className="absolute -left-32 top-0 h-[420px] w-[420px] rounded-full bg-indigo-600/25 blur-[130px]" />
           <div className="absolute -right-24 bottom-0 h-[380px] w-[380px] rounded-full bg-gold-500/15 blur-[120px]" />
@@ -218,7 +224,7 @@ export default function LandingPage({
       </section>
 
       {/* Testimonials */}
-      <section className="bg-slate-50 py-16 lg:py-24">
+      <section id="reviews" className="bg-slate-50 py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <Reveal>
             <h2 className="text-center text-3xl font-extrabold tracking-tight text-navy-950 sm:text-4xl">
@@ -236,7 +242,7 @@ export default function LandingPage({
       </section>
 
       {/* FAQ */}
-      <section className="bg-white py-16 lg:py-24">
+      <section id="faq" className="bg-white py-16 lg:py-24">
         <div className="faq mx-auto max-w-3xl px-4 sm:px-6">
           <Reveal>
             <h2 className="text-center text-3xl font-extrabold tracking-tight text-navy-950 sm:text-4xl">

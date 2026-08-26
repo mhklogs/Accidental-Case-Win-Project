@@ -90,6 +90,7 @@ export default function Stats() {
   return (
     <section
       ref={ref}
+      id="stats"
       className="relative overflow-hidden border-b border-slate-200 bg-white py-12"
     >
       {/* ---- faded background "signal" graph, draws itself on reveal ---- */}

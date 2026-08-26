@@ -84,6 +84,23 @@ export async function saveUser(user: AdminUser): Promise<void> {
   await writeUsers(users);
 }
 
+export async function listUsers(): Promise<AdminUser[]> {
+  await ensureSeeded();
+  const users = await readUsers();
+  return Object.values(users).sort(
+    (a, b) => a.createdAt.localeCompare(b.createdAt)
+  );
+}
+
+export async function deleteUser(username: string): Promise<boolean> {
+  await ensureSeeded();
+  const users = await readUsers();
+  if (!users[username]) return false;
+  delete users[username];
+  await writeUsers(users);
+  return true;
+}
+
 export async function setPassword(
   username: string,
   newPassword: string
