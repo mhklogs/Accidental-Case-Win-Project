@@ -1,6 +1,4 @@
-import fs from "fs/promises";
-import path from "path";
-import crypto from "crypto";
+import { getSupabase } from "./supabase";
 
 export type TrustedFormClaim = {
   attemptedAt: string;
@@ -12,7 +10,6 @@ export type TrustedFormClaim = {
 
 export type Lead = {
   id: string;
-  /** Username of the dashboard account this lead belongs to. */
   owner: string;
   name: string;
   phone: string;
@@ -25,85 +22,97 @@ export type Lead = {
 };
 
 export type UserSettings = {
-  /** Per-user ActiveProspect / TrustedForm API key. Persists until reset. */
   trustedFormApiKey: string | null;
   trustedFormApiKeyUpdatedAt: string | null;
 };
 
-type SettingsFile = Record<string, UserSettings>;
-
-const DATA_DIR = process.env.DATA_DIR || path.join(process.cwd(), "data");
-const LEADS_FILE = path.join(DATA_DIR, "leads.json");
-const SETTINGS_FILE = path.join(DATA_DIR, "settings.json");
-
-/* ------------------------- concurrency control ------------------------ */
-
-/**
- * Serializes all writes through a single promise chain so simultaneous
- * requests (multiple users, multiple devices) never interleave
- * read-modify-write cycles on the JSON files.
- */
-let writeQueue: Promise<unknown> = Promise.resolve();
-function locked<T>(fn: () => Promise<T>): Promise<T> {
-  const run = writeQueue.then(fn, fn);
-  writeQueue = run.then(
-    () => undefined,
-    () => undefined
-  );
-  return run;
-}
-
-async function readJson<T>(file: string, fallback: T): Promise<T> {
-  try {
-    const raw = await fs.readFile(file, "utf-8");
-    return JSON.parse(raw) as T;
-  } catch {
-    return fallback;
-  }
-}
-
-async function writeJsonAtomic(file: string, value: unknown): Promise<void> {
-  await fs.mkdir(DATA_DIR, { recursive: true });
-  const tmp = `${file}.${crypto.randomBytes(4).toString("hex")}.tmp`;
-  await fs.writeFile(tmp, JSON.stringify(value, null, 2), "utf-8");
-  await fs.rename(tmp, file);
-}
+/* ============================ LEADS ============================ */
 
 export async function getLeads(): Promise<Lead[]> {
-  return readJson<Lead[]>(LEADS_FILE, []);
-}
-
-export async function saveLeads(leads: Lead[]): Promise<void> {
-  return locked(() => writeJsonAtomic(LEADS_FILE, leads));
+  const sb = getSupabase();
+  const { data, error } = await sb
+    .from("leads")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []).map((r: Record<string, unknown>) => ({
+    id: r.id as string,
+    owner: r.owner as string,
+    name: r.name as string,
+    phone: r.phone as string,
+    email: r.email as string,
+    zip: r.zip as string,
+    state: r.state as string,
+    trustedFormCertUrl: (r.trusted_form_cert_url as string) ?? null,
+    trustedFormClaim: r.trusted_form_claim
+      ? (typeof r.trusted_form_claim === "string"
+          ? JSON.parse(r.trusted_form_claim as string)
+          : r.trusted_form_claim) as TrustedFormClaim
+      : null,
+    createdAt: r.created_at as string,
+  }));
 }
 
 export async function addLead(
   input: Omit<Lead, "id" | "createdAt">
 ): Promise<Lead> {
-  return locked(async () => {
-    const leads = await readJson<Lead[]>(LEADS_FILE, []);
-    const lead: Lead = {
-      ...input,
-      id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
-    };
-    leads.unshift(lead);
-    await writeJsonAtomic(LEADS_FILE, leads);
-    return lead;
-  });
+  const sb = getSupabase();
+  const id = crypto.randomUUID();
+  const now = new Date().toISOString();
+  const row = {
+    id,
+    owner: input.owner,
+    name: input.name,
+    phone: input.phone,
+    email: input.email,
+    zip: input.zip,
+    state: input.state,
+    trusted_form_cert_url: input.trustedFormCertUrl,
+    trusted_form_claim: input.trustedFormClaim
+      ? JSON.stringify(input.trustedFormClaim)
+      : null,
+    created_at: now,
+  };
+  const { error } = await sb.from("leads").insert(row);
+  if (error) throw error;
+  return { ...input, id, createdAt: now };
 }
 
-/** Returns the calling user's own settings (falls back to an optional env-level key). */
-export async function getUserSettings(
-  username: string
-): Promise<UserSettings> {
-  const all = await readJson<SettingsFile>(SETTINGS_FILE, {});
-  const own = all[username];
+export async function getLeadById(id: string): Promise<Lead | null> {
+  const sb = getSupabase();
+  const { data, error } = await sb.from("leads").select("*").eq("id", id).single();
+  if (error || !data) return null;
+  const r = data as Record<string, unknown>;
   return {
-    trustedFormApiKey:
-      own?.trustedFormApiKey ??
-      (process.env.TRUSTEDFORM_API_KEY?.trim() || null),
-    trustedFormApiKeyUpdatedAt: own?.trustedFormApiKeyUpdatedAt ?? null,
+    id: r.id as string,
+    owner: r.owner as string,
+    name: r.name as string,
+    phone: r.phone as string,
+    email: r.email as string,
+    zip: r.zip as string,
+    state: r.state as string,
+    trustedFormCertUrl: (r.trusted_form_cert_url as string) ?? null,
+    trustedFormClaim: r.trusted_form_claim
+      ? (typeof r.trusted_form_claim === "string"
+          ? JSON.parse(r.trusted_form_claim as string)
+          : r.trusted_form_claim) as TrustedFormClaim
+      : null,
+    createdAt: r.created_at as string,
+  };
+}
+
+/* ============================ SETTINGS ============================ */
+
+export async function getUserSettings(username: string): Promise<UserSettings> {
+  const sb = getSupabase();
+  const { data } = await sb
+    .from("settings")
+    .select("*")
+    .eq("username", username)
+    .single();
+  return {
+    trustedFormApiKey: data?.trusted_form_api_key ?? process.env.TRUSTEDFORM_API_KEY?.trim() ?? null,
+    trustedFormApiKeyUpdatedAt: data?.updated_at ?? null,
   };
 }
 
@@ -111,29 +120,20 @@ export async function setTrustedFormApiKey(
   username: string,
   apiKey: string
 ): Promise<UserSettings> {
-  return locked(async () => {
-    const all = await readJson<SettingsFile>(SETTINGS_FILE, {});
-    const settings: UserSettings = {
-      trustedFormApiKey: apiKey,
-      trustedFormApiKeyUpdatedAt: new Date().toISOString(),
-    };
-    all[username] = settings;
-    await writeJsonAtomic(SETTINGS_FILE, all);
-    return settings;
-  });
+  const sb = getSupabase();
+  const now = new Date().toISOString();
+  const { error } = await sb.from("settings").upsert(
+    { username, trusted_form_api_key: apiKey, updated_at: now },
+    { onConflict: "username" }
+  );
+  if (error) throw error;
+  return { trustedFormApiKey: apiKey, trustedFormApiKeyUpdatedAt: now };
 }
 
 export async function clearTrustedFormApiKey(
   username: string
 ): Promise<UserSettings> {
-  return locked(async () => {
-    const all = await readJson<SettingsFile>(SETTINGS_FILE, {});
-    const settings: UserSettings = {
-      trustedFormApiKey: null,
-      trustedFormApiKeyUpdatedAt: null,
-    };
-    delete all[username];
-    await writeJsonAtomic(SETTINGS_FILE, all);
-    return settings;
-  });
+  const sb = getSupabase();
+  await sb.from("settings").delete().eq("username", username);
+  return { trustedFormApiKey: null, trustedFormApiKeyUpdatedAt: null };
 }

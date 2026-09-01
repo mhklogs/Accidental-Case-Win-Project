@@ -68,7 +68,7 @@ export default function CaseTypePage({ params }: { params: { slug: string } }) {
             <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-gold-400 to-gold-600 shadow-lifted">
               <Scale className="h-6 w-6 text-navy-950" strokeWidth={2.5} />
             </span>
-            <span className="text-xl font-bold tracking-tight text-white">
+            <span className="font-heading text-xl font-bold uppercase tracking-tight text-white">
               Accident<span className="text-gold-400">Case</span>Win
             </span>
           </Link>
@@ -100,7 +100,7 @@ export default function CaseTypePage({ params }: { params: { slug: string } }) {
                 <Icon className="h-8 w-8 text-navy-950" />
               </span>
               <div>
-                <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
+                <h1 className="font-heading text-3xl font-bold uppercase tracking-tight text-white sm:text-5xl">
                   {ct.title}
                 </h1>
                 <p className="mt-3 max-w-2xl text-lg text-slate-300">{ct.tagline}</p>
@@ -163,10 +163,10 @@ export default function CaseTypePage({ params }: { params: { slug: string } }) {
                     Start My Free Case Review →
                   </Link>
                   <a
-                    href="tel:+18885550199"
+                    href="tel:+17139197830"
                     className="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/5 px-6 py-3.5 text-base font-semibold text-white backdrop-blur transition hover:bg-white/10"
                   >
-                    <PhoneCall className="h-5 w-5 text-gold-400" /> (888) 555-0199
+                    <PhoneCall className="h-5 w-5 text-gold-400" /> (713) 919-7830
                   </a>
                 </div>
               </div>
@@ -178,7 +178,7 @@ export default function CaseTypePage({ params }: { params: { slug: string } }) {
       {/* Other case types */}
       <section className="border-t border-slate-200 bg-slate-50 py-14">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <h2 className="text-center text-2xl font-extrabold tracking-tight text-navy-950">
+          <h2 className="font-heading text-center text-2xl font-bold uppercase tracking-tight text-navy-950">
             Other Case Types We Handle
           </h2>
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">

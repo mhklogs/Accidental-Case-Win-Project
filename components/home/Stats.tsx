@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 
 const STATS = [
-  { raw: "$250M+", label: "Recovered for clients" },
-  { raw: "15,000+", label: "Cases won nationwide" },
+  { raw: "$100M+", label: "Recovered for clients" },
+  { raw: "1,000+", label: "Families helped nationwide" },
   { raw: "98%", label: "Success rate" },
   { raw: "$0", label: "Upfront costs — ever" },
 ];

@@ -1,6 +1,4 @@
-import fs from "fs/promises";
-import path from "path";
-import crypto from "crypto";
+import { getSupabase } from "./supabase";
 import { hashSecret, normalizeAnswer, verifySecret } from "./auth";
 
 export type SecurityQuestion = {
@@ -15,89 +13,105 @@ export type AdminUser = {
   securityQuestions: SecurityQuestion[];
   passwordChangedAt: string | null;
   createdAt: string;
-  /** Username of the account that created this user (seeded user: null). */
   createdBy?: string | null;
 };
 
-const DATA_DIR = process.env.DATA_DIR || path.join(process.cwd(), "data");
-const USERS_FILE = path.join(DATA_DIR, "users.json");
+/* ---- env-var fallback user (used when no DB rows exist yet) ---- */
 
-async function readUsers(): Promise<Record<string, AdminUser>> {
-  try {
-    const raw = await fs.readFile(USERS_FILE, "utf-8");
-    return JSON.parse(raw);
-  } catch {
-    return {};
-  }
-}
+let cachedEnvUser: AdminUser | null = null;
 
-async function writeUsers(users: Record<string, AdminUser>): Promise<void> {
-  await fs.mkdir(DATA_DIR, { recursive: true });
-  const tmp = `${USERS_FILE}.${crypto.randomBytes(4).toString("hex")}.tmp`;
-  await fs.writeFile(tmp, JSON.stringify(users, null, 2), "utf-8");
-  await fs.rename(tmp, USERS_FILE);
-}
-
-/**
- * Seeds the first admin account from env vars (or the provided defaults)
- * the very first time anyone looks up a user. Change credentials after
- * first login via the dashboard's settings panel.
- */
-async function ensureSeeded(): Promise<void> {
-  const users = await readUsers();
-  if (Object.keys(users).length > 0) return;
-
-  const username = (
-    process.env.ADMIN_USERNAME || "umar@0987654321"
-  ).toLowerCase();
-  const password = process.env.ADMIN_PASSWORD || "um@r#0987654321";
-
-  users[username] = {
-    username,
-    passwordHash: hashSecret(password),
+function getEnvUser(): AdminUser {
+  if (cachedEnvUser) return cachedEnvUser;
+  const envUser = (process.env.ADMIN_USERNAME || "admin").toLowerCase();
+  const envPass = process.env.ADMIN_PASSWORD || "admin";
+  cachedEnvUser = {
+    username: envUser,
+    passwordHash: hashSecret(envPass),
     securityQuestions: [],
     passwordChangedAt: null,
-    createdAt: new Date().toISOString(),
+    createdAt: new Date(0).toISOString(),
   };
-  await writeUsers(users);
+  return cachedEnvUser;
 }
+
+/* ---- DB helpers ---- */
+
+function rowToUser(r: Record<string, unknown>): AdminUser {
+  return {
+    username: r.username as string,
+    passwordHash: r.password_hash as string,
+    securityQuestions: r.security_questions
+      ? JSON.parse(r.security_questions as string)
+      : [],
+    passwordChangedAt: (r.password_changed_at as string) ?? null,
+    createdAt: r.created_at as string,
+    createdBy: (r.created_by as string) ?? null,
+  };
+}
+
+function userToRow(u: AdminUser): Record<string, unknown> {
+  return {
+    username: u.username,
+    password_hash: u.passwordHash,
+    security_questions: JSON.stringify(u.securityQuestions),
+    password_changed_at: u.passwordChangedAt,
+    created_at: u.createdAt,
+    created_by: u.createdBy ?? null,
+  };
+}
+
+/* ---- public API ---- */
 
 export async function getUser(username: string): Promise<AdminUser | null> {
-  await ensureSeeded();
-  const users = await readUsers();
-  return users[username.trim().toLowerCase()] ?? null;
+  const sb = getSupabase();
+  const { data } = await sb
+    .from("users")
+    .select("*")
+    .eq("username", username.trim().toLowerCase())
+    .single();
+  if (data) return rowToUser(data as Record<string, unknown>);
+
+  const env = getEnvUser();
+  if (username.trim().toLowerCase() === env.username) return env;
+  return null;
 }
 
-/** The seeded/first account — fallback owner for leads without an explicit owner. */
 export async function getPrimaryUsername(): Promise<string> {
-  await ensureSeeded();
-  const users = await readUsers();
-  const first = Object.values(users).sort(
-    (a, b) => a.createdAt.localeCompare(b.createdAt)
-  )[0];
-  return first?.username ?? "admin";
+  const sb = getSupabase();
+  const { data } = await sb
+    .from("users")
+    .select("username")
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .single();
+  return data?.username ?? (process.env.ADMIN_USERNAME || "admin").toLowerCase();
 }
 
 export async function saveUser(user: AdminUser): Promise<void> {
-  const users = await readUsers();
-  users[user.username] = user;
-  await writeUsers(users);
+  const sb = getSupabase();
+  const { error } = await sb
+    .from("users")
+    .upsert(userToRow(user), { onConflict: "username" });
+  if (error) throw error;
 }
 
 export async function listUsers(): Promise<AdminUser[]> {
-  await ensureSeeded();
-  const users = await readUsers();
-  return Object.values(users).sort(
-    (a, b) => a.createdAt.localeCompare(b.createdAt)
-  );
+  const sb = getSupabase();
+  const { data } = await sb
+    .from("users")
+    .select("*")
+    .order("created_at", { ascending: true });
+  if (!data || data.length === 0) return [getEnvUser()];
+  return data.map((r: Record<string, unknown>) => rowToUser(r));
 }
 
 export async function deleteUser(username: string): Promise<boolean> {
-  await ensureSeeded();
-  const users = await readUsers();
-  if (!users[username]) return false;
-  delete users[username];
-  await writeUsers(users);
+  const sb = getSupabase();
+  const { error, count } = await sb
+    .from("users")
+    .delete()
+    .eq("username", username);
+  if (error) return false;
   return true;
 }
 
@@ -119,7 +133,6 @@ export async function replaceSecurityQuestions(
 ): Promise<boolean> {
   const user = await getUser(username);
   if (!user) return false;
-
   user.securityQuestions = entries.map((e) => ({
     id: crypto.randomUUID(),
     question: e.question.trim(),
@@ -129,7 +142,6 @@ export async function replaceSecurityQuestions(
   return true;
 }
 
-/** Verifies every provided answer against its matching stored question. */
 export async function verifySecurityAnswers(
   user: AdminUser,
   answers: string[]

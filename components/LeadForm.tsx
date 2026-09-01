@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Loader2, Lock, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const US_STATES = [
   "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA",
@@ -13,11 +14,6 @@ const US_STATES = [
 
 type FormState = "idle" | "submitting" | "error";
 
-/**
- * Injects the official ActiveProspect TrustedForm tag. The script writes a
- * certificate URL into a hidden input named `xxTrustedFormCertUrl`, which we
- * read from the form on submit.
- */
 function useTrustedForm(formRef: React.RefObject<HTMLFormElement>) {
   const injected = useRef(false);
   useEffect(() => {
@@ -25,7 +21,6 @@ function useTrustedForm(formRef: React.RefObject<HTMLFormElement>) {
     injected.current = true;
 
     const field = "xxTrustedFormCertUrl";
-    const provideReferrer = false;
     let tf: HTMLScriptElement | null = null;
 
     window.setTimeout(() => {
@@ -46,7 +41,7 @@ function useTrustedForm(formRef: React.RefObject<HTMLFormElement>) {
           ("https:" === document.location.protocol ? "s" : "") +
           "://api.trustedform.com/trustedform.js?field=" +
           encodeURIComponent(field) +
-          (provideReferrer ? "&l=" + encodeURIComponent(document.referrer) : "");
+          "&use_tagged_consent=true";
         const s = document.getElementsByTagName("script")[0];
         s?.parentNode?.insertBefore(tf, s);
       } catch {
@@ -64,17 +59,23 @@ function useTrustedForm(formRef: React.RefObject<HTMLFormElement>) {
 export default function LeadForm({
   ownerRef,
 }: {
-  /** Optional `?ref=username` from the URL — attributes the lead to that account. */
   ownerRef?: string;
 }) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [formState, setFormState] = useState<FormState>("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [agreed, setAgreed] = useState(false);
   useTrustedForm(formRef);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (!agreed) {
+      setErrorMessage("You must agree to the Terms & Conditions and Privacy Policy.");
+      setFormState("error");
+      return;
+    }
+
     setFormState("submitting");
     setErrorMessage("");
 
@@ -145,6 +146,28 @@ export default function LeadForm({
             ))}
           </select>
         </div>
+      </div>
+
+      {/* Terms & Conditions + Privacy Policy checkbox */}
+      <div className="flex items-start gap-3 rounded-lg border border-slate-200 bg-slate-50/60 px-4 py-3">
+        <input
+          id="agree-tos"
+          type="checkbox"
+          checked={agreed}
+          onChange={(e) => setAgreed(e.target.checked)}
+          className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 text-gold-500 focus:ring-gold-500/30"
+        />
+        <label htmlFor="agree-tos" className="text-xs leading-relaxed text-slate-600">
+          I agree to the{" "}
+          <Link href="/terms" target="_blank" className="font-semibold text-navy-900 underline decoration-slate-300 underline-offset-2 hover:text-gold-600">
+            Terms &amp; Conditions
+          </Link>{" "}
+          and{" "}
+          <Link href="/privacy" target="_blank" className="font-semibold text-navy-900 underline decoration-slate-300 underline-offset-2 hover:text-gold-600">
+            Privacy Policy
+          </Link>
+          . I consent to be contacted regarding my potential legal case.
+        </label>
       </div>
 
       {errorMessage && (

@@ -33,8 +33,11 @@ const config: Config = {
         },
       },
       fontFamily: {
+        oswald: ["Oswald", "sans-serif"],
+        outfit: ["Outfit", "sans-serif"],
+        serif: ["Instrument Serif", "Georgia", "serif"],
         sans: [
-          "var(--font-inter)",
+          "Outfit",
           "ui-sans-serif",
           "system-ui",
           "-apple-system",

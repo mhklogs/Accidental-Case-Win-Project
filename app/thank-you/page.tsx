@@ -12,7 +12,7 @@ export default function ThankYouPage() {
         <span className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
           <CheckCircle2 className="h-9 w-9 text-emerald-600" />
         </span>
-        <h1 className="text-3xl font-extrabold tracking-tight text-navy-900">
+        <h1 className="font-heading text-3xl font-bold uppercase tracking-tight text-navy-900">
           You&apos;re All Set!
         </h1>
         <p className="mt-4 leading-relaxed text-slate-600">

@@ -10,6 +10,7 @@ import {
   Inbox,
   Loader2,
   ShieldCheck,
+  FileText,
 } from "lucide-react";
 
 export type LeadRow = {
@@ -163,7 +164,7 @@ export default function LeadsTable({
           <table className="min-w-full divide-y divide-slate-200 text-sm">
             <thead className="bg-slate-50">
               <tr>
-                {["Name", "Phone", "Email", "Location", "Submitted", "TrustedForm"].map((h) => (
+                {["Name", "Phone", "Email", "Location", "Submitted", "TrustedForm", "Certificate"].map((h) => (
                   <th key={h} className="whitespace-nowrap px-5 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">
                     {h}
                   </th>
@@ -173,13 +174,13 @@ export default function LeadsTable({
             <tbody className="divide-y divide-slate-100">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="px-5 py-16 text-center">
+                  <td colSpan={7} className="px-5 py-16 text-center">
                     <Loader2 className="mx-auto h-7 w-7 animate-spin text-navy-600" />
                   </td>
                 </tr>
               ) : leads.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-5 py-16 text-center">
+                  <td colSpan={7} className="px-5 py-16 text-center">
                     <Inbox className="mx-auto mb-3 h-9 w-9 text-slate-300" />
                     <p className="font-semibold text-slate-600">No leads found</p>
                     <p className="text-sm text-slate-400">
@@ -193,19 +194,42 @@ export default function LeadsTable({
                   return (
                     <tr
                       key={lead.id}
-                      onClick={() => onSelect(lead)}
-                      className="cursor-pointer transition hover:bg-navy-50/60"
+                      className="transition hover:bg-navy-50/60"
                     >
-                      <td className="px-5 py-3.5 font-semibold text-navy-900">{lead.name}</td>
-                      <td className="whitespace-nowrap px-5 py-3.5 text-slate-600">{lead.phone}</td>
-                      <td className="px-5 py-3.5 text-slate-600">{lead.email}</td>
-                      <td className="whitespace-nowrap px-5 py-3.5 text-slate-600">
+                      <td
+                        className="cursor-pointer px-5 py-3.5 font-semibold text-navy-900"
+                        onClick={() => onSelect(lead)}
+                      >
+                        {lead.name}
+                      </td>
+                      <td
+                        className="whitespace-nowrap cursor-pointer px-5 py-3.5 text-slate-600"
+                        onClick={() => onSelect(lead)}
+                      >
+                        {lead.phone}
+                      </td>
+                      <td
+                        className="cursor-pointer px-5 py-3.5 text-slate-600"
+                        onClick={() => onSelect(lead)}
+                      >
+                        {lead.email}
+                      </td>
+                      <td
+                        className="whitespace-nowrap cursor-pointer px-5 py-3.5 text-slate-600"
+                        onClick={() => onSelect(lead)}
+                      >
                         {lead.state} {lead.zip}
                       </td>
-                      <td className="whitespace-nowrap px-5 py-3.5 text-slate-500">
+                      <td
+                        className="whitespace-nowrap cursor-pointer px-5 py-3.5 text-slate-500"
+                        onClick={() => onSelect(lead)}
+                      >
                         {new Date(lead.createdAt).toLocaleString()}
                       </td>
-                      <td className="px-5 py-3.5">
+                      <td
+                        className="cursor-pointer px-5 py-3.5"
+                        onClick={() => onSelect(lead)}
+                      >
                         {badge ? (
                           <span className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold ${badge.className}`}>
                             {badge.label}
@@ -215,6 +239,18 @@ export default function LeadsTable({
                             <ShieldCheck className="h-3.5 w-3.5" /> —
                           </span>
                         )}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <a
+                          href={`/certificate/${lead.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-navy-200 bg-navy-50 px-3 py-1.5 text-xs font-bold text-navy-800 transition hover:bg-navy-100 hover:border-navy-300 active:scale-[0.97]"
+                        >
+                          <FileText className="h-3.5 w-3.5" />
+                          View PDF
+                        </a>
                       </td>
                     </tr>
                   );
@@ -250,7 +286,7 @@ export default function LeadsTable({
         )}
       </div>
       <p className="mt-3 text-xs text-slate-400">
-        Click any row to view full lead details and the TrustedForm certificate.
+        Click any row to view lead details. Click &quot;View PDF&quot; to open the certificate.
       </p>
     </section>
   );

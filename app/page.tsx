@@ -97,7 +97,7 @@ export default function LandingPage({
             <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-gold-400 to-gold-600 shadow-lifted">
               <Scale className="h-6 w-6 text-navy-950" strokeWidth={2.5} />
             </span>
-            <span className="text-xl font-bold tracking-tight text-white">
+            <span className="font-heading text-xl font-bold uppercase tracking-tight text-white">
               Accident<span className="text-gold-400">Case</span>Win
             </span>
           </Link>
@@ -122,7 +122,7 @@ export default function LandingPage({
       <section id="how" className="bg-slate-50 py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <Reveal>
-            <h2 className="text-center text-3xl font-extrabold tracking-tight text-navy-950 sm:text-4xl">
+            <h2 className="font-heading text-center text-3xl font-bold uppercase tracking-tight text-navy-950 sm:text-4xl">
               How It Works
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-center text-slate-500">
@@ -150,7 +150,7 @@ export default function LandingPage({
       <section id="areas" className="bg-white py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <Reveal>
-            <h2 className="text-center text-3xl font-extrabold tracking-tight text-navy-950 sm:text-4xl">
+            <h2 className="font-heading text-center text-3xl font-bold uppercase tracking-tight text-navy-950 sm:text-4xl">
               Case Types We Handle
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-center text-slate-500">
@@ -190,7 +190,7 @@ export default function LandingPage({
         </div>
         <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-2">
           <Reveal>
-            <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+            <h2 className="font-heading text-3xl font-bold uppercase tracking-tight text-white sm:text-4xl">
               Why Injured Victims Choose AccidentCaseWin
             </h2>
             <ul className="mt-8 space-y-4">
@@ -213,10 +213,10 @@ export default function LandingPage({
                 weakens your case.
               </p>
               <a
-                href="tel:+18885550199"
+                href="tel:+17139197830"
                 className="mt-6 inline-block rounded-xl bg-gradient-to-r from-gold-400 to-gold-500 px-8 py-4 text-base font-bold text-navy-950 shadow-lifted transition hover:brightness-110 active:scale-[0.98]"
               >
-                Call (888) 555-0199 · Available 24/7
+                Call (713) 919-7830 · Available 24/7
               </a>
             </div>
           </Reveal>
@@ -227,7 +227,7 @@ export default function LandingPage({
       <section id="reviews" className="bg-slate-50 py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <Reveal>
-            <h2 className="text-center text-3xl font-extrabold tracking-tight text-navy-950 sm:text-4xl">
+            <h2 className="font-heading text-center text-3xl font-bold uppercase tracking-tight text-navy-950 sm:text-4xl">
               Real Clients. Real Recoveries.
             </h2>
           </Reveal>
@@ -245,7 +245,7 @@ export default function LandingPage({
       <section id="faq" className="bg-white py-16 lg:py-24">
         <div className="faq mx-auto max-w-3xl px-4 sm:px-6">
           <Reveal>
-            <h2 className="text-center text-3xl font-extrabold tracking-tight text-navy-950 sm:text-4xl">
+            <h2 className="font-heading text-center text-3xl font-bold uppercase tracking-tight text-navy-950 sm:text-4xl">
               Questions? Answered.
             </h2>
           </Reveal>
@@ -271,7 +271,7 @@ export default function LandingPage({
           <div className="absolute left-1/2 top-1/2 h-[380px] w-[720px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold-500/10 blur-[110px]" />
         </div>
         <Reveal className="relative mx-auto max-w-3xl px-4 text-center sm:px-6">
-          <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+          <h2 className="font-heading text-3xl font-bold uppercase tracking-tight text-white sm:text-4xl">
             Your Case Is Worth More Than You Think.
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-slate-300">
@@ -292,7 +292,7 @@ export default function LandingPage({
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 text-center text-sm text-slate-500 sm:px-6 md:flex-row md:text-left">
           <div className="flex items-center gap-2">
             <Scale className="h-5 w-5 text-navy-800" />
-            <span className="font-bold text-navy-950">AccidentCaseWin</span>
+            <span className="font-heading font-bold uppercase text-navy-950">AccidentCaseWin</span>
           </div>
           <p className="max-w-xl">
             This is attorney advertising and does not establish an

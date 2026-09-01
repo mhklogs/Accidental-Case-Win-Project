@@ -380,6 +380,11 @@ function UsersTab() {
   const [newPass, setNewPass] = useState("");
   const [editTarget, setEditTarget] = useState<string | null>(null);
   const [editPass, setEditPass] = useState("");
+  const [newQuestions, setNewQuestions] = useState([
+    { question: "", answer: "" },
+    { question: "", answer: "" },
+    { question: "", answer: "" },
+  ]);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
 
@@ -397,13 +402,25 @@ function UsersTab() {
   async function createUser(e: React.FormEvent) {
     e.preventDefault();
     setMessage(null); setBusy(true);
+    const securityQuestions = newQuestions
+      .filter((r) => r.question.trim() && r.answer.trim())
+      .map((r) => ({ question: r.question.trim(), answer: r.answer.trim() }));
     try {
       await apiFetch("/api/admin/users", {
         method: "POST",
-        body: JSON.stringify({ username: newUser, password: newPass }),
+        body: JSON.stringify({
+          username: newUser,
+          password: newPass,
+          ...(securityQuestions.length > 0 ? { securityQuestions } : {}),
+        }),
       });
       setMessage({ ok: true, text: `Account "${newUser.toLowerCase()}" created.` });
       setNewUser(""); setNewPass("");
+      setNewQuestions([
+        { question: "", answer: "" },
+        { question: "", answer: "" },
+        { question: "", answer: "" },
+      ]);
       await loadUsers();
     } catch (err) {
       setMessage({ ok: false, text: err instanceof Error ? err.message : "Failed." });
@@ -520,6 +537,32 @@ function UsersTab() {
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create"}
           </button>
         </div>
+        <details className="group rounded-lg border border-slate-200 bg-slate-50/60 px-3 py-2">
+          <summary className="cursor-pointer select-none text-xs font-semibold text-slate-500 hover:text-navy-800">
+            Set initial security questions (optional — enables self-service password reset)
+          </summary>
+          <div className="mt-3 space-y-2">
+            {newQuestions.map((row, i) => (
+              <div key={i} className="grid gap-2 sm:grid-cols-2">
+                <input
+                  type="text"
+                  value={row.question}
+                  onChange={(e) => setNewQuestions(newQuestions.map((r, j) => j === i ? { ...r, question: e.target.value } : r))}
+                  placeholder={`Question ${i + 1}`}
+                  className="input-field text-sm"
+                />
+                <input
+                  type="text"
+                  value={row.answer}
+                  onChange={(e) => setNewQuestions(newQuestions.map((r, j) => j === i ? { ...r, answer: e.target.value } : r))}
+                  placeholder={`Answer ${i + 1}`}
+                  autoComplete="off"
+                  className="input-field text-sm"
+                />
+              </div>
+            ))}
+          </div>
+        </details>
       </form>
 
       {message && (

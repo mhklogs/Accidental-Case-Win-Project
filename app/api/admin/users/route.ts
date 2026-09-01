@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { authenticate, hashSecret, verifySecret } from "@/lib/auth";
+import { authenticate, hashSecret, normalizeAnswer } from "@/lib/auth";
 import {
   getUser,
   saveUser,
@@ -32,7 +32,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 
-  let body: { username?: unknown; password?: unknown };
+  let body: {
+    username?: unknown;
+    password?: unknown;
+    securityQuestions?: unknown;
+  };
   try {
     body = await req.json();
   } catch {
@@ -42,6 +46,9 @@ export async function POST(req: Request) {
   const username =
     typeof body.username === "string" ? body.username.trim().toLowerCase() : "";
   const password = typeof body.password === "string" ? body.password : "";
+  const rawQuestions = Array.isArray(body.securityQuestions)
+    ? (body.securityQuestions as Array<{ question?: unknown; answer?: unknown }>)
+    : [];
 
   if (!/^[a-z0-9@._-]{3,64}$/.test(username)) {
     return NextResponse.json(
@@ -62,10 +69,32 @@ export async function POST(req: Request) {
     );
   }
 
+  // Optional security questions, saved at creation so the new account can
+  // self-serve a password reset from day one. Blank pairs are ignored.
+  const securityQuestions = rawQuestions
+    .map((q) => ({
+      question: typeof q.question === "string" ? q.question.trim() : "",
+      answer: typeof q.answer === "string" ? q.answer.trim() : "",
+    }))
+    .filter((q) => q.question && q.answer)
+    .slice(0, 3)
+    .map((q) => ({
+      id: crypto.randomUUID(),
+      question: q.question,
+      answerHash: hashSecret(normalizeAnswer(q.answer)),
+    }));
+
+  if (rawQuestions.length > 0 && securityQuestions.length === 0) {
+    return NextResponse.json(
+      { error: "Security questions need both a question and an answer." },
+      { status: 422 }
+    );
+  }
+
   await saveUser({
     username,
     passwordHash: hashSecret(password),
-    securityQuestions: [],
+    securityQuestions,
     passwordChangedAt: null,
     createdAt: new Date().toISOString(),
     createdBy: caller,

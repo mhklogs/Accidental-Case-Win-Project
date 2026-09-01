@@ -54,11 +54,11 @@ export default function Hero() {
           <h1
             data-plx="0.16"
             data-fade="1.15"
-            className="max-w-2xl text-4xl font-extrabold leading-[1.06] tracking-tight sm:text-5xl lg:text-[3.9rem]"
+            className="font-heading max-w-2xl text-4xl font-bold uppercase leading-[1.06] tracking-tight sm:text-5xl lg:text-[3.9rem]"
           >
-            Injured in an Accident?
+            You Focus on Healing.
             <span className="shimmer-gradient mt-2 block bg-gradient-to-r from-gold-300 via-gold-500 to-amber-300 bg-clip-text text-transparent">
-              Turn Your Pain Into Compensation.
+              We Focus on Winning.
             </span>
           </h1>
 
@@ -67,12 +67,10 @@ export default function Hero() {
             data-fade="1.35"
             className="mt-6 max-w-xl text-lg leading-relaxed text-slate-300"
           >
-            Insurance companies deploy entire legal teams to pay you as little
-            as possible. We level the playing field — matching you within
-            minutes with a battle-tested personal injury attorney in your state
-            who has recovered{" "}
+            Injured in a car crash? You focus on healing. We focus on winning.
+            Free case review, no fee unless we win.{" "}
             <span className="font-semibold text-white">
-              millions for people exactly like you.
+              1,000+ families helped, $100M+ recovered.
             </span>
           </p>
 
@@ -96,11 +94,11 @@ export default function Hero() {
 
           <div data-fade="1.7" className="mt-10">
             <a
-              href="tel:+18885550199"
+              href="tel:+17139197830"
               className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/5 px-7 py-4 text-base font-semibold text-white backdrop-blur transition hover:bg-white/10"
             >
               <PhoneCall className="h-5 w-5 text-gold-400" />
-              Prefer to talk? Call (888) 555-0199 — 24/7
+              Prefer to talk? Call (713) 919-7830 — 24/7
             </a>
             <p className="mt-3 text-sm text-slate-400 sm:hidden">
               Or use the form below 👇
@@ -122,7 +120,7 @@ export default function Hero() {
         {/* form card */}
         <div id="claim" data-plx="-0.12" className="lg:sticky lg:top-24">
           <div className="auto-anim rounded-2xl border border-white/20 bg-white p-6 shadow-lifted sm:p-8">
-            <h2 className="text-2xl font-bold text-navy-950">
+            <h2 className="font-heading text-2xl font-bold uppercase text-navy-950">
               Check My Compensation
             </h2>
             <p className="mt-1.5 text-sm text-slate-500">

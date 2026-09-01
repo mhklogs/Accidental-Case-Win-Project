@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X, Loader2, ExternalLink, ShieldCheck, ShieldAlert } from "lucide-react";
+import { X, Loader2, ExternalLink, ShieldCheck, ShieldAlert, FileText } from "lucide-react";
 import { apiFetch } from "./api";
 import type { LeadRow } from "./LeadsTable";
 
@@ -110,6 +110,17 @@ export default function LeadDrawer({
                 </h3>
                 <ClaimPanel claim={lead.trustedFormClaim} />
               </section>
+
+              {/* View Certificate */}
+              <a
+                href={`/certificate/${lead.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 rounded-xl border-2 border-navy-900 bg-navy-900 px-5 py-3.5 text-sm font-bold text-white shadow transition hover:bg-navy-800 active:scale-[0.98]"
+              >
+                <FileText className="h-4 w-4" />
+                View / Download Certificate
+              </a>
             </div>
           )}
         </div>
