@@ -24,7 +24,7 @@ export function generateMetadata({
 }) {
   const ct = getCaseType(params.slug);
   return {
-    title: ct ? `${ct.title} — Free Case Review | AccidentCaseWin` : "Case Type",
+    title: ct ? `${ct.title} — Free Case Review | Accident Care Helpline` : "Case Type",
     description: ct?.tagline,
   };
 }
@@ -69,7 +69,7 @@ export default function CaseTypePage({ params }: { params: { slug: string } }) {
               <Scale className="h-6 w-6 text-navy-950" strokeWidth={2.5} />
             </span>
             <span className="font-heading text-xl font-bold uppercase tracking-tight text-white">
-              Accident<span className="text-gold-400">Case</span>Win
+              Accident<span className="text-gold-400">Care</span>Helpline
             </span>
           </Link>
           <Link

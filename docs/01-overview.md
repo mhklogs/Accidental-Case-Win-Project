@@ -2,7 +2,7 @@
 
 ## 1. What This Product Is
 
-AccidentCaseWin is a lead-generation web application for personal-injury legal
+Accident Care Helpline is a lead-generation web application for personal-injury legal
 services. It has two faces:
 
 1. **A public landing page** (`/`) that converts accident victims into

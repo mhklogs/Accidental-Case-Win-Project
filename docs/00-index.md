@@ -1,4 +1,4 @@
-# AccidentCaseWin — Documentation Index
+# Accident Care Helpline — Documentation Index
 
 Production-ready lead-generation platform for personal-injury case intake with
 per-user dashboards and TrustedForm compliance integration.

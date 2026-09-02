@@ -38,7 +38,7 @@ export async function claimCertificate(
 
   try {
     const body = new URLSearchParams();
-    body.set("page_id", process.env.TRUSTEDFORM_PAGE_ID || "accident-case-win");
+    body.set("page_id", process.env.TRUSTEDFORM_PAGE_ID || "accident-care-helpline");
     body.set("vendor", process.env.TRUSTEDFORM_VENDOR || "Accident Care Helpline");
     body.set("funnel", process.env.TRUSTEDFORM_FUNNEL || "Personal Injury");
     if (lead.email) body.set("email", lead.email);

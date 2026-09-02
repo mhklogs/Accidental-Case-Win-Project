@@ -98,7 +98,7 @@ export default function LandingPage({
               <Scale className="h-6 w-6 text-navy-950" strokeWidth={2.5} />
             </span>
             <span className="font-heading text-xl font-bold uppercase tracking-tight text-white">
-              Accident<span className="text-gold-400">Case</span>Win
+              Accident<span className="text-gold-400">Care</span>Helpline
             </span>
           </Link>
           <a
@@ -191,7 +191,7 @@ export default function LandingPage({
         <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-2">
           <Reveal>
             <h2 className="font-heading text-3xl font-bold uppercase tracking-tight text-white sm:text-4xl">
-              Why Injured Victims Choose AccidentCaseWin
+              Why Injured Victims Choose Accident Care Helpline
             </h2>
             <ul className="mt-8 space-y-4">
               {guarantees.map((g) => (
@@ -292,7 +292,7 @@ export default function LandingPage({
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 text-center text-sm text-slate-500 sm:px-6 md:flex-row md:text-left">
           <div className="flex items-center gap-2">
             <Scale className="h-5 w-5 text-navy-800" />
-            <span className="font-heading font-bold uppercase text-navy-950">AccidentCaseWin</span>
+            <span className="font-heading font-bold uppercase text-navy-950">Accident Care Helpline</span>
           </div>
           <p className="max-w-xl">
             This is attorney advertising and does not establish an

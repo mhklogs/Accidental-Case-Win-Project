@@ -119,7 +119,7 @@ export default function LoginGate({
             <Scale className="h-7 w-7 text-navy-900" strokeWidth={2.5} />
           </span>
           <div>
-            <p className="text-xl font-bold">AccidentCaseWin</p>
+            <p className="text-xl font-bold">Accident Care Helpline</p>
             <p className="text-xs font-medium tracking-wide text-navy-200 uppercase">
               Admin Dashboard
             </p>
