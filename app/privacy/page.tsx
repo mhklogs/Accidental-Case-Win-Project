@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export const metadata = { title: "Privacy Policy — Accident Case Win" };
+export const metadata = { title: "Privacy Policy — Accident Care Helpline" };
 
 export default function PrivacyPage() {
   return (
@@ -28,7 +28,7 @@ export default function PrivacyPage() {
           <p>If you have questions about this Privacy Policy, contact us at <a href="tel:+17139197830" className="font-bold text-navy-900">(713) 919-7830</a>.</p>
         </div>
         <div className="mt-10 border-t border-slate-200 pt-6 text-center">
-          <Link href="/" className="text-sm font-semibold text-indigo-700 hover:text-indigo-900">← Return to Accident Case Win</Link>
+          <Link href="/" className="text-sm font-semibold text-indigo-700 hover:text-indigo-900">← Return to Accident Care Helpline</Link>
         </div>
       </div>
     </main>

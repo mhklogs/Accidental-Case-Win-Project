@@ -2,7 +2,7 @@ import Link from "next/link";
 import { CheckCircle2, PhoneCall, Home, ShieldCheck } from "lucide-react";
 
 export const metadata = {
-  title: "Thank You — Accident Case Win",
+  title: "Thank You — Accident Care Helpline",
 };
 
 export default function ThankYouPage() {

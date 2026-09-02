@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Accident Case Win — Get the Compensation You Deserve",
+  title: "Accident Care Helpline — Get the Compensation You Deserve",
   description:
     "Injured in an accident? Our network of experienced personal injury attorneys fights to get you maximum compensation. Free case review — no fee unless we win.",
 };
