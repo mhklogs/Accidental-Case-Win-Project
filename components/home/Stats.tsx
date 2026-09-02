@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 
 const STATS = [
-  { raw: "$100M+", label: "Recovered for clients" },
-  { raw: "1,000+", label: "Families helped nationwide" },
-  { raw: "98%", label: "Success rate" },
-  { raw: "$0", label: "Upfront costs — ever" },
+  { raw: "$100M+", label: "Recovered for injured clients nationwide" },
+  { raw: "1,000+", label: "Families helped find the right attorney" },
+  { raw: "98%", label: "Client satisfaction rate" },
+  { raw: "$0", label: "Upfront costs — ever. Contingency-based fees." },
 ];
 
 function parseRaw(raw: string) {

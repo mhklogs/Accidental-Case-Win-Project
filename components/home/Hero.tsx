@@ -9,6 +9,9 @@ import {
   PhoneCall,
   ChevronDown,
   TrendingUp,
+  CheckCircle2,
+  FileText,
+  Users,
 } from "lucide-react";
 import LeadForm from "@/components/LeadForm";
 import useHeroMotion from "./useHeroMotion";
@@ -67,8 +70,14 @@ export default function Hero() {
             data-fade="1.35"
             className="mt-6 max-w-xl text-lg leading-relaxed text-slate-300"
           >
-            Injured in a car crash? You focus on healing. We focus on winning.
-            Free case review, no fee unless we win.{" "}
+            Whether you were injured in a car crash, truck collision, motorcycle
+            accident, or any other incident caused by someone else&apos;s
+            negligence, you deserve answers — and compensation. Get a{" "}
+            <span className="font-semibold text-white">
+              free, confidential case review
+            </span>{" "}
+            from an experienced attorney who can evaluate your situation, explain
+            your legal options, and fight for the maximum settlement you deserve.{" "}
             <span className="font-semibold text-white">
               1,000+ families helped, $100M+ recovered.
             </span>
@@ -91,6 +100,19 @@ export default function Hero() {
               </li>
             ))}
           </ul>
+
+          <div data-fade="1.65" className="mt-8 flex flex-wrap gap-x-6 gap-y-2">
+            {[
+              { icon: CheckCircle2, text: "Free Consultation, No Upfront Costs" },
+              { icon: Users, text: "Dedicated Support Throughout the Process" },
+              { icon: FileText, text: "Guidance Focused on the Details of Your Case" },
+            ].map(({ icon: Icon, text }) => (
+              <span key={text} className="inline-flex items-center gap-2 text-sm font-medium text-slate-200">
+                <Icon className="h-4 w-4 shrink-0 text-emerald-400" />
+                {text}
+              </span>
+            ))}
+          </div>
 
           <div data-fade="1.7" className="mt-10">
             <a
@@ -121,10 +143,11 @@ export default function Hero() {
         <div id="claim" data-plx="-0.12" className="lg:sticky lg:top-24">
           <div className="auto-anim rounded-2xl border border-white/20 bg-white p-6 shadow-lifted sm:p-8">
             <h2 className="font-heading text-2xl font-bold uppercase text-navy-950">
-              Check My Compensation
+              Get Your Free Case Review
             </h2>
             <p className="mt-1.5 text-sm text-slate-500">
-              100% free &amp; confidential. See what your case is worth — in under 2 minutes.
+              100% free &amp; confidential. Submit your details and an experienced attorney
+              will review your case and explain your legal options — in under 2 minutes.
             </p>
             <LeadForm />
           </div>

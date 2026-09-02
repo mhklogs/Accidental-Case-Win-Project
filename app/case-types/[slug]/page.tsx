@@ -9,6 +9,11 @@ import {
   ListChecks,
   PhoneCall,
   Scale,
+  ShieldCheck,
+  Clock3,
+  CheckCircle2,
+  Users,
+  FileText,
 } from "lucide-react";
 import { CASE_TYPES, getCaseType } from "@/lib/caseTypes";
 import Reveal from "@/components/home/Reveal";
@@ -101,9 +106,21 @@ export default function CaseTypePage({ params }: { params: { slug: string } }) {
               </span>
               <div>
                 <h1 className="font-heading text-3xl font-bold uppercase tracking-tight text-white sm:text-5xl">
-                  {ct.title}
+                  {ct.title} Lawyers
                 </h1>
                 <p className="mt-3 max-w-2xl text-lg text-slate-300">{ct.tagline}</p>
+                <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2">
+                  {[
+                    { icon: CheckCircle2, text: "Free Case Review, No Upfront Costs" },
+                    { icon: Users, text: "Attorneys Experienced in These Claims" },
+                    { icon: FileText, text: "Guidance Focused on Your Situation" },
+                  ].map(({ icon: Icon, text }) => (
+                    <span key={text} className="inline-flex items-center gap-2 text-sm font-medium text-slate-200">
+                      <Icon className="h-4 w-4 shrink-0 text-emerald-400" />
+                      {text}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           </Reveal>
@@ -115,6 +132,30 @@ export default function CaseTypePage({ params }: { params: { slug: string } }) {
         <div className="mx-auto max-w-4xl px-4 sm:px-6">
           <Reveal>
             <p className="text-lg leading-relaxed text-slate-700">{ct.intro}</p>
+            <p className="mt-4 text-base leading-relaxed text-slate-600">
+              The bottom line: if you were injured and someone else may be even
+              partly at fault, you may be entitled to compensation — but only if
+              you act. An experienced {ct.title.toLowerCase().replace(/s$/, "")} attorney
+              can review the details of your situation at no cost and explain
+              the legal options available to you under the laws of your state.
+            </p>
+          </Reveal>
+
+          {/* Quick-support strip */}
+          <Reveal delay={80}>
+            <div className="mt-10 grid gap-4 sm:grid-cols-3">
+              {[
+                { icon: ShieldCheck, title: "Free Case Review", body: "No cost, no obligation. Find out if you have a claim." },
+                { icon: Clock3, title: "Act Fast", body: "Evidence fades fast. Deadlines vary by state — don't wait." },
+                { icon: BadgeDollarSign, title: "No Fee Unless You Win", body: "Attorneys work on contingency. $0 upfront, ever." },
+              ].map(({ icon: Icon, title, body }) => (
+                <div key={title} className="rounded-xl border border-slate-200 bg-slate-50/60 p-5 text-center">
+                  <Icon className="mx-auto h-6 w-6 text-gold-500" />
+                  <h3 className="mt-2 text-sm font-bold text-navy-950">{title}</h3>
+                  <p className="mt-1 text-xs leading-relaxed text-slate-500">{body}</p>
+                </div>
+              ))}
+            </div>
           </Reveal>
 
           <div className="mt-12 space-y-10">
@@ -152,9 +193,24 @@ export default function CaseTypePage({ params }: { params: { slug: string } }) {
                   Hurt in a {ct.title.replace(/s$/, "")}? Don&apos;t Wait.
                 </h2>
                 <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-slate-300">
-                  Evidence fades and deadlines pass. Get a free, confidential case
-                  review in under two minutes — no fee unless you win.
+                  Evidence fades and deadlines pass. Submit your case details now
+                  and an experienced {ct.title.toLowerCase().replace(/s$/, "")} attorney
+                  can review your situation, explain your legal options, and help
+                  you pursue the compensation you deserve.
                 </p>
+                <ul className="mx-auto mt-5 max-w-md space-y-2 text-left text-sm text-slate-300">
+                  {[
+                    "Free, confidential case evaluation within minutes",
+                    "Attorneys who focus on these specific types of claims",
+                    "No fee unless we win — guaranteed in writing",
+                    "24/7 availability, including weekends",
+                  ].map((item) => (
+                    <li key={item} className="flex items-start gap-2.5">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-gold-400" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
                 <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
                   <Link
                     href="/#claim"
