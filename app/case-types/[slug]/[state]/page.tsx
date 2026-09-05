@@ -141,6 +141,12 @@ export default function PracticeStatePage({
             explain the legal options available to you under the laws of your
             state.
           </p>
+          <p className="mt-4 text-base leading-relaxed text-slate-600">
+            Our network includes {label.toLowerCase()} attorneys serving{" "}
+            {st.cities.slice(0, 3).join(", ")}
+            {st.cities.slice(3).length ? `, ${st.cities.slice(3).join(", ")}` : ""}{" "}
+            and surrounding communities throughout {st.name}.
+          </p>
 
           {/* Quick-support strip */}
           <div className="mt-10 grid gap-4 sm:grid-cols-3">

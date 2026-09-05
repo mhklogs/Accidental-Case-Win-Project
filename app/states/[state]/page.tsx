@@ -4,6 +4,7 @@ import { MapPin, ArrowRight, ArrowLeft } from "lucide-react";
 import { getState, STATES } from "@/lib/states";
 import { CASE_TYPES } from "@/lib/caseTypes";
 import SeoShell from "@/components/seo/SeoShell";
+import FaqBlock, { type FaqItem } from "@/components/seo/FaqBlock";
 
 export function generateStaticParams() {
   return STATES.map((s) => ({ state: s.slug }));
@@ -23,6 +24,28 @@ export function generateMetadata({ params }: { params: { state: string } }) {
 export default function StatePage({ params }: { params: { state: string } }) {
   const st = getState(params.state);
   if (!st) notFound();
+
+  const serviceCities = st.cities.slice(0, 3).join(", ");
+  const moreCities = st.cities.slice(3).join(", ");
+
+  const faqs: FaqItem[] = [
+    {
+      question: `How much does a ${st.name} accident lawyer cost?`,
+      answer: `Accident Care Helpline connects you with ${st.name} attorneys for a completely free case review. Attorneys work on a contingency basis — you pay nothing upfront and no fee unless they win your case.`,
+    },
+    {
+      question: `What should I do right after a car accident in ${st.name}?`,
+      answer: `Call 911 to report the accident, seek medical attention, exchange information, take photos of damage and the scene, and avoid making recorded statements to insurance adjusters. Then call (713) 919-7830 for a free case review with an attorney who handles ${st.name} accident claims.`,
+    },
+    {
+      question: `Can I get a free case review if I was injured in ${st.cities[0]}?`,
+      answer: `Yes. Accident Care Helpline works with attorneys who handle cases throughout ${st.name}, including ${serviceCities}${moreCities ? `, ${moreCities}` : ""} and surrounding areas. Your case review is free and confidential.`,
+    },
+    {
+      question: `How long does an accident case take in ${st.name}?`,
+      answer: `It depends on the severity of your injuries and whether liability is disputed. A ${st.name} accident attorney will give you a realistic timeline after reviewing your case for free and can handle negotiations while you focus on recovery.`,
+    },
+  ];
 
   return (
     <SeoShell>
@@ -73,6 +96,11 @@ export default function StatePage({ params }: { params: { state: string } }) {
             review today and an attorney can help you understand the value of
             your claim and every step that comes next.
           </p>
+          <p className="mt-4 text-base leading-relaxed text-slate-600">
+            Serving accident victims across {st.name} — including{" "}
+            {serviceCities}
+            {moreCities ? `, ${moreCities}` : ""} and surrounding communities.
+          </p>
         </div>
       </section>
 
@@ -108,6 +136,13 @@ export default function StatePage({ params }: { params: { state: string } }) {
           </div>
         </div>
       </section>
+
+      <FaqBlock
+        items={faqs}
+        eyebrow="FAQ"
+        title={`${st.name} Accident Lawyer FAQ`}
+        intro="Quick answers about accident claims and working with an attorney in your state."
+      />
 
       {/* All states */}
       <section className="border-t border-slate-200 bg-white py-14">
