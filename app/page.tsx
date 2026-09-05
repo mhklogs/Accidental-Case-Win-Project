@@ -21,6 +21,7 @@ import Reveal from "@/components/home/Reveal";
 import Stats from "@/components/home/Stats";
 import TestimonialCard from "@/components/home/TestimonialCard";
 import { CASE_TYPES } from "@/lib/caseTypes";
+import { STATES } from "@/lib/states";
 
 const steps = [
   {
@@ -92,18 +93,6 @@ const damages = [
     title: "Rehabilitation and Therapy Costs",
     body: "Helps cover physical therapy, occupational therapy, chiropractic care, mental health counseling, and continued medical support that aids long-term recovery. These costs can add up quickly — documentation is key to recovering them.",
   },
-];
-
-const states = [
-  "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado",
-  "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho",
-  "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana",
-  "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi",
-  "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey",
-  "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio",
-  "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina",
-  "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia",
-  "Washington", "West Virginia", "Wisconsin", "Wyoming", "District of Columbia",
 ];
 
 const testimonials = [
@@ -458,11 +447,14 @@ export default function LandingPage({
             </p>
           </Reveal>
           <div className="mt-12 flex flex-wrap justify-center gap-2.5">
-            {states.map((s, i) => (
-              <Reveal key={s} delay={(i % 8) * 30} y={10}>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-sm font-medium text-slate-200 transition hover:border-gold-400/40 hover:bg-white/10 hover:text-white">
-                  {s}
-                </span>
+            {STATES.map((s, i) => (
+              <Reveal key={s.slug} delay={(i % 8) * 30} y={10}>
+                <Link
+                  href={`/states/${s.slug}`}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-sm font-medium text-slate-200 transition hover:border-gold-400/40 hover:bg-white/10 hover:text-white"
+                >
+                  {s.name}
+                </Link>
               </Reveal>
             ))}
           </div>

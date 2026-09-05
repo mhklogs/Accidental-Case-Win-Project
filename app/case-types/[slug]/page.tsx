@@ -15,7 +15,8 @@ import {
   Users,
   FileText,
 } from "lucide-react";
-import { CASE_TYPES, getCaseType } from "@/lib/caseTypes";
+import { CASE_TYPES, getCaseType, singularLabel } from "@/lib/caseTypes";
+import { STATES } from "@/lib/states";
 import Reveal from "@/components/home/Reveal";
 
 export function generateStaticParams() {
@@ -29,8 +30,13 @@ export function generateMetadata({
 }) {
   const ct = getCaseType(params.slug);
   return {
-    title: ct ? `${ct.title} — Free Case Review | Accident Care Helpline` : "Case Type",
+    title: ct
+      ? `${singularLabel(ct.title)} Lawyers — Free Case Review | Accident Care Helpline`
+      : "Case Type",
     description: ct?.tagline,
+    alternates: {
+      canonical: `/case-types/${ct?.slug ?? params.slug}`,
+    },
   };
 }
 
@@ -106,7 +112,7 @@ export default function CaseTypePage({ params }: { params: { slug: string } }) {
               </span>
               <div>
                 <h1 className="font-heading text-3xl font-bold uppercase tracking-tight text-white sm:text-5xl">
-                  {ct.title} Lawyers
+                  {singularLabel(ct.title)} Lawyers
                 </h1>
                 <p className="mt-3 max-w-2xl text-lg text-slate-300">{ct.tagline}</p>
                 <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2">
@@ -257,6 +263,30 @@ export default function CaseTypePage({ params }: { params: { slug: string } }) {
               View all practice areas →
             </Link>
           </p>
+        </div>
+      </section>
+
+      {/* Serving every state */}
+      <section className="border-t border-slate-200 bg-white py-14">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <h2 className="font-heading text-center text-2xl font-bold uppercase tracking-tight text-navy-950">
+            {singularLabel(ct.title)} Lawyers in Every State
+          </h2>
+          <p className="mx-auto mt-2 max-w-2xl text-center text-slate-500">
+            Licensed attorneys across the United States are ready to review your
+            case for free.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-2.5">
+            {STATES.map((s) => (
+              <Link
+                key={s.slug}
+                href={`/case-types/${ct.slug}/${s.slug}`}
+                className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-4 py-1.5 text-sm font-medium text-slate-700 transition hover:border-gold-400/60 hover:bg-gold-50 hover:text-navy-950"
+              >
+                {s.name}
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
     </main>

@@ -3,6 +3,7 @@ import { CheckCircle2, PhoneCall, Home, ShieldCheck } from "lucide-react";
 
 export const metadata = {
   title: "Thank You — Accident Care Helpline",
+  robots: { index: false, follow: false },
 };
 
 export default function ThankYouPage() {

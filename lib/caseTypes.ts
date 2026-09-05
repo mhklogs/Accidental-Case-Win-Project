@@ -323,3 +323,8 @@ export const CASE_TYPES: CaseType[] = [
 export function getCaseType(slug: string): CaseType | undefined {
   return CASE_TYPES.find((c) => c.slug === slug);
 }
+
+/** "Car Accidents" -> "Car Accident", "Slip & Fall" -> "Slip & Fall" */
+export function singularLabel(title: string): string {
+  return title.replace(/s$/, "");
+}
