@@ -31,6 +31,11 @@ export const metadata: Metadata = {
     description:
       "Injured in an accident? Connect with an experienced attorney for a free case review. No fee unless you win.",
   },
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 const jsonLd = {
