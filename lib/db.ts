@@ -26,6 +26,49 @@ export type UserSettings = {
   trustedFormApiKeyUpdatedAt: string | null;
 };
 
+export type SocialLink = {
+  id: string;
+  type: string;
+  label: string;
+  url: string;
+  createdAt: string;
+};
+
+/* ======================== SOCIAL / PROFESSIONAL LINKS ======================== */
+
+// Stored in the shared `rom_store` jsonb table (key "ach_links") so no schema
+// migration is needed. Service-role client bypasses RLS.
+const SOCIAL_LINKS_KEY = "ach_links";
+
+async function readSocialLinksRaw(): Promise<unknown> {
+  const sb = getSupabase();
+  const { data, error } = await sb
+    .from("rom_store")
+    .select("data")
+    .eq("key", SOCIAL_LINKS_KEY)
+    .maybeSingle();
+  if (error) throw error;
+  return data?.data ?? null;
+}
+
+export async function getSocialLinks(): Promise<SocialLink[]> {
+  const value = await readSocialLinksRaw();
+  if (Array.isArray(value)) return value as SocialLink[];
+  if (value && typeof value === "object") return [value as SocialLink];
+  return [];
+}
+
+export async function saveSocialLinks(links: SocialLink[]): Promise<SocialLink[]> {
+  const sb = getSupabase();
+  const { error } = await sb.from("rom_store").upsert({
+    key: SOCIAL_LINKS_KEY,
+    data: links,
+    updated_at: new Date().toISOString(),
+  });
+  if (error) throw error;
+  return links;
+}
+
 /* ============================ LEADS ============================ */
 
 export async function getLeads(): Promise<Lead[]> {

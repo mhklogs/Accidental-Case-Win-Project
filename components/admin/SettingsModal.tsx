@@ -9,10 +9,12 @@ import {
   ShieldQuestion,
   UserPlus,
   CheckCircle2,
+  Link2,
 } from "lucide-react";
 import { apiFetch } from "./api";
+import LinksTab from "./LinksTab";
 
-type Tab = "apikey" | "password" | "questions" | "users";
+type Tab = "apikey" | "links" | "password" | "questions" | "users";
 
 export default function SettingsModal({
   username,
@@ -25,6 +27,7 @@ export default function SettingsModal({
 
   const tabs: Array<{ id: Tab; label: string; icon: typeof KeyRound }> = [
     { id: "apikey", label: "TrustedForm API Key", icon: KeyRound },
+    { id: "links", label: "Social Links", icon: Link2 },
     { id: "password", label: "Change Password", icon: Lock },
     { id: "questions", label: "Security Questions", icon: ShieldQuestion },
     { id: "users", label: "Add User", icon: UserPlus },
@@ -60,6 +63,7 @@ export default function SettingsModal({
 
           <div className="min-h-0 flex-1 overflow-y-auto p-6">
             {tab === "apikey" && <ApiKeyTab />}
+            {tab === "links" && <LinksTab />}
             {tab === "password" && <PasswordTab />}
             {tab === "questions" && <QuestionsTab />}
             {tab === "users" && <UsersTab />}

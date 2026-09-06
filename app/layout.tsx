@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import { SITE_URL } from "@/lib/states";
+import SiteFooter from "@/components/SiteFooter";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -68,6 +69,7 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased bg-white text-slate-800">
         {children}
+        <SiteFooter />
         <Analytics />
       </body>
     </html>
