@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import {
   Scale,
   PhoneCall,
@@ -21,7 +22,16 @@ import Reveal from "@/components/home/Reveal";
 import Stats from "@/components/home/Stats";
 import TestimonialCard from "@/components/home/TestimonialCard";
 import { CASE_TYPES } from "@/lib/caseTypes";
-import { STATES } from "@/lib/states";
+import { STATES, SITE_URL } from "@/lib/states";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    url: SITE_URL,
+  },
+};
 
 const steps = [
   {

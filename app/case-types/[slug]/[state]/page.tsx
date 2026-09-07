@@ -11,7 +11,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { CASE_TYPES, getCaseType, singularLabel } from "@/lib/caseTypes";
-import { STATES, getState } from "@/lib/states";
+import { STATES, getState, SITE_URL } from "@/lib/states";
 import SeoShell from "@/components/seo/SeoShell";
 
 export function generateStaticParams() {
@@ -31,11 +31,20 @@ export function generateMetadata({
     return { title: "Not Found — Accident Care Helpline" };
   }
   const heading = `${singularLabel(ct.title)} Lawyers in ${st.name}`;
+  const description = `Were you injured in a ${singularLabel(ct.title).toLowerCase()} in ${
+    st.name
+  }? ${singularLabel(ct.title)} lawyers in ${st.name} will review your case for free. No fee unless you win. Call (713) 919-7830.`;
   return {
     title: `${heading} | Free Case Review — Accident Care Helpline`,
-    description: `Were you injured in a ${singularLabel(ct.title).toLowerCase()} in ${
-      st.name
-    }? ${singularLabel(ct.title)} lawyers in ${st.name} will review your case for free. No fee unless you win. Call (713) 919-7830.`,
+    description,
+    alternates: {
+      canonical: `/case-types/${ct.slug}/${st.slug}`,
+    },
+    openGraph: {
+      title: `${heading} | Free Case Review`,
+      description,
+      url: `${SITE_URL}/case-types/${ct.slug}/${st.slug}`,
+    },
   };
 }
 

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MapPin, ArrowRight, ArrowLeft } from "lucide-react";
-import { getState, STATES } from "@/lib/states";
+import { getState, STATES, SITE_URL } from "@/lib/states";
 import { CASE_TYPES } from "@/lib/caseTypes";
 import SeoShell from "@/components/seo/SeoShell";
 import FaqBlock, { type FaqItem } from "@/components/seo/FaqBlock";
@@ -18,6 +18,14 @@ export function generateMetadata({ params }: { params: { state: string } }) {
   return {
     title: `${st.name} Accident Lawyers | Free Case Review — Accident Care Helpline`,
     description: `Injured in ${st.name}? Connect with experienced accident attorneys in ${st.name} who fight for maximum compensation. Free confidential case review — no fee unless you win.`,
+    alternates: {
+      canonical: `/states/${st.slug}`,
+    },
+    openGraph: {
+      title: `${st.name} Accident Lawyers | Free Case Review`,
+      description: `Injured in ${st.name}? Connect with experienced accident attorneys in ${st.name} who fight for maximum compensation. Free confidential case review — no fee unless you win.`,
+      url: `${SITE_URL}/states/${st.slug}`,
+    },
   };
 }
 

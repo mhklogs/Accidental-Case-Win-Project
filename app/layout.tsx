@@ -9,21 +9,14 @@ export const metadata: Metadata = {
   title: "Accident Care Helpline — Get the Compensation You Deserve",
   description:
     "Injured in an accident? Our network of experienced personal injury attorneys fights to get you maximum compensation. Free case review — no fee unless we win.",
-  alternates: {
-    canonical: "/",
-  },
   robots: {
     index: true,
     follow: true,
     googleBot: { index: true, follow: true },
   },
   openGraph: {
-    title: "Accident Care Helpline — Get the Compensation You Deserve",
-    description:
-      "Injured in an accident? Our network of experienced personal injury attorneys fights to get you maximum compensation. Free case review — no fee unless we win.",
     type: "website",
     siteName: "Accident Care Helpline",
-    url: SITE_URL,
   },
   twitter: {
     card: "summary_large_image",
