@@ -17,18 +17,45 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "Accident Care Helpline",
+    title: "Accident Care Helpline — Get the Compensation You Deserve",
+    description:
+      "Injured in an accident? Our network of experienced personal injury attorneys fights to get you maximum compensation. Free case review — no fee unless we win.",
+    url: SITE_URL,
+    locale: "en_US",
+    images: [
+      {
+        url: "/og-cover.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Accident Care Helpline — Free case review, no fee unless we win",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Accident Care Helpline — Get the Compensation You Deserve",
     description:
       "Injured in an accident? Connect with an experienced attorney for a free case review. No fee unless you win.",
+    images: ["/og-cover.jpg"],
   },
+  themeColor: "#0B1F3A",
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
     shortcut: "/favicon.ico",
     apple: "/apple-touch-icon.png",
   },
+  keywords: [
+    "Accident Care Helpline",
+    "personal injury attorney",
+    "car accident lawyer",
+    "free case review",
+    "no fee unless we win",
+    "auto accident claim",
+    "injury compensation",
+  ],
 };
 
 const jsonLd = {
@@ -36,6 +63,7 @@ const jsonLd = {
   "@type": "Organization",
   name: "Accident Care Helpline",
   url: SITE_URL,
+  logo: `${SITE_URL}/apple-touch-icon.png`,
   description:
     "Accident Care Helpline connects injury victims with experienced personal injury attorneys across the United States. Free case reviews, no upfront costs.",
   areaServed: "US",
