@@ -48,7 +48,7 @@ export async function claimCertificate(
     const res = await fetch(`${CLAIM_BASE}/${certId}/claims`, {
       method: "POST",
       headers: {
-        Authorization: `Basic ${Buffer.from(`${apiKey}:`).toString("base64")}`,
+        Authorization: `Basic ${Buffer.from(`API:${apiKey}`).toString("base64")}`,
         "Content-Type": "application/x-www-form-urlencoded",
         Accept: "application/json",
       },
