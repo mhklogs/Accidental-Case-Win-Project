@@ -4,6 +4,13 @@ import { STATES, SITE_URL } from "@/lib/states";
 
 const lastModified = new Date();
 
+const blogPosts = [
+  {
+    slug: "statute-of-limitations-car-accident-claims",
+    priority: 0.8 as const,
+  },
+];
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const entries: MetadataRoute.Sitemap = [
     {
@@ -12,6 +19,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 1,
     },
+    {
+      url: `${SITE_URL}/blog`,
+      lastModified,
+      changeFrequency: "weekly",
+      priority: 0.6,
+    },
+    ...blogPosts.map((p) => ({
+      url: `${SITE_URL}/blog/${p.slug}`,
+      lastModified,
+      changeFrequency: "monthly" as const,
+      priority: p.priority,
+    })),
     {
       url: `${SITE_URL}/privacy`,
       lastModified,
