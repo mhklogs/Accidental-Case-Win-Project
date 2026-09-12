@@ -46,14 +46,6 @@ export default function Hero() {
       <div className="relative mx-auto grid max-w-7xl gap-14 px-4 pb-24 pt-16 sm:px-6 lg:grid-cols-[1.08fr_460px] lg:items-start lg:gap-12 lg:pb-32 lg:pt-24">
         {/* copy */}
         <div className="text-white">
-          <p
-            data-fade="1.6"
-            className="mb-5 inline-flex items-center gap-2 rounded-full border border-gold-400/40 bg-gold-400/10 px-4 py-1.5 text-sm font-semibold text-gold-300 backdrop-blur"
-          >
-            <ShieldCheck className="h-4 w-4" />
-            Free Case Review · No Fee Unless You Win
-          </p>
-
           <h1
             data-plx="0.16"
             data-fade="1.15"

@@ -11,7 +11,9 @@ function certIdFromUrl(certUrl: string): string | null {
 /**
  * Claims (and thereby retains) a TrustedForm certificate via ActiveProspect,
  * using the site's API key (set server-side via the TRUSTEDFORM_API_KEY env
- * var). Docs: https://docs.activeprospect.com/docs/trustedform-claim-api
+ * var). Per the ActiveProspect docs the claim is a POST to the certificate URL
+ * itself (https://cert.trustedform.com/{certificateId}) — NOT a /claims route:
+ * https://developers.activeprospect.com/api-reference/trustedform/v2/overview
  *
  * Returns null-equivalent statuses when no key is configured so callers can
  * persist the lead regardless — certificate claiming must never block capture.
@@ -45,14 +47,12 @@ export async function claimCertificate(
 
   try {
     const body = new URLSearchParams();
-    body.set("page_id", process.env.TRUSTEDFORM_PAGE_ID || "accident-care-helpline");
     body.set("vendor", process.env.TRUSTEDFORM_VENDOR || "Accident Care Helpline");
-    body.set("funnel", process.env.TRUSTEDFORM_FUNNEL || "Personal Injury");
     if (lead.email) body.set("email", lead.email);
     if (lead.phone) body.set("phone", lead.phone);
     if (lead.name) body.set("name", lead.name);
 
-    const res = await fetch(`${CLAIM_BASE}/${certId}/claims`, {
+    const res = await fetch(`${CLAIM_BASE}/${certId}`, {
       method: "POST",
       headers: {
         Authorization: `Basic ${Buffer.from(`API:${apiKey}`).toString("base64")}`,

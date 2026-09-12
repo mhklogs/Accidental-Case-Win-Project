@@ -14,21 +14,48 @@ const SECTIONS = [
 ];
 
 export default function Sidebar() {
-  const [active, setActive] = useState("hero");
+  const [active, setActive] = useState(SECTIONS[0].id);
 
   useEffect(() => {
-    const obs: IntersectionObserver[] = [];
-    for (const { id } of SECTIONS) {
-      const el = document.getElementById(id);
-      if (!el) continue;
-      const io = new IntersectionObserver(
-        ([e]) => { if (e.isIntersecting) setActive(id); },
-        { threshold: 0.3, rootMargin: "-10% 0px -60% 0px" }
-      );
-      io.observe(el);
-      obs.push(io);
-    }
-    return () => obs.forEach((o) => o.disconnect());
+    let ticking = false;
+
+    const update = () => {
+      ticking = false;
+      // Reading line sits ~40% down the viewport: the section under it is the
+      // one the visitor is focused on. Falls back to the last section whose top
+      // has been passed so the highlight matches wherever the user has scrolled.
+      const readLine = window.innerHeight * 0.4;
+      let current = SECTIONS[0].id;
+      let lastPassed = SECTIONS[0].id;
+      for (const { id } of SECTIONS) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        const r = el.getBoundingClientRect();
+        if (r.top <= readLine) lastPassed = id;
+        if (r.top <= readLine && r.bottom >= readLine) {
+          current = id;
+          break;
+        }
+      }
+      // Between sections the line may sit in a gap; keep the last passed one.
+      current = current === SECTIONS[0].id && lastPassed !== SECTIONS[0].id ? lastPassed : current;
+      setActive((prev) => (prev === current ? prev : current));
+    };
+
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    };
+
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, []);
 
   return (
