@@ -118,7 +118,7 @@ export async function POST(req: Request) {
   }
 
   // Claim/retain the certificate first so the result can be stored on the lead.
-  const trustedFormClaim = await claimCertificate(values);
+  const trustedFormClaim = await claimCertificate({ ...values, owner });
 
   const lead = await addLead({ ...values, owner, trustedFormClaim });
 

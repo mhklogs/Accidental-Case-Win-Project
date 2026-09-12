@@ -1,15 +1,12 @@
 import { NextResponse } from "next/server";
-import {
-  clearTrustedFormApiKey,
-  getUserSettings,
-  setTrustedFormApiKey,
-} from "@/lib/db";
+import { getUserSettings } from "@/lib/db";
 import { authenticate } from "@/lib/auth";
 
 /**
- * Per-user TrustedForm API key management.
- * Each dashboard account stores its OWN key once — it persists across
- * sessions and devices until the user resets it.
+ * TrustedForm API key status.
+ * The key is managed server-side via the TRUSTEDFORM_API_KEY deployment env
+ * var (never stored per-user in the database). This endpoint only reports
+ * whether it's configured.
  */
 export async function GET(req: Request) {
   const username = authenticate(req);
@@ -18,14 +15,14 @@ export async function GET(req: Request) {
   }
 
   const settings = await getUserSettings(username);
-  const envFallback = Boolean(process.env.TRUSTEDFORM_API_KEY?.trim());
   return NextResponse.json({
     configured: Boolean(settings.trustedFormApiKey),
     // Never return the raw key to the client — masked preview only.
     keyPreview: settings.trustedFormApiKey
       ? `${settings.trustedFormApiKey.slice(0, 4)}••••${settings.trustedFormApiKey.slice(-4)}`
       : null,
-    usingEnvFallback: !settings.trustedFormApiKey && envFallback,
+    source: "env",
+    usingEnvFallback: true,
     updatedAt: settings.trustedFormApiKeyUpdatedAt,
   });
 }
@@ -36,27 +33,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 
-  let body: { apiKey?: unknown; action?: unknown };
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
-  }
-
-  if (body.action === "reset") {
-    await clearTrustedFormApiKey(username);
-    return NextResponse.json({ ok: true, configured: false });
-  }
-
-  const apiKey = typeof body.apiKey === "string" ? body.apiKey.trim() : "";
-  if (!apiKey) {
-    return NextResponse.json({ error: "API key is required." }, { status: 422 });
-  }
-
-  const settings = await setTrustedFormApiKey(username, apiKey);
+  // The key is set at deploy time via TRUSTEDFORM_API_KEY. Nothing is stored.
+  const settings = await getUserSettings(username);
   return NextResponse.json({
     ok: true,
-    configured: true,
-    updatedAt: settings.trustedFormApiKeyUpdatedAt,
+    configured: Boolean(settings.trustedFormApiKey),
+    message: settings.trustedFormApiKey
+      ? "TrustedForm key is active. It is managed server-side via the TRUSTEDFORM_API_KEY environment variable."
+      : "No TrustedForm key set. Add TRUSTEDFORM_API_KEY to the deployment environment.",
   });
 }

@@ -1,4 +1,4 @@
-import type { Lead, TrustedFormClaim, UserSettings } from "./db";
+import type { Lead, TrustedFormClaim } from "./db";
 import { getUserSettings } from "./db";
 
 const CLAIM_BASE = "https://cert.trustedform.com";
@@ -10,7 +10,8 @@ function certIdFromUrl(certUrl: string): string | null {
 
 /**
  * Claims (and thereby retains) a TrustedForm certificate via ActiveProspect,
- * using the OWNING USER's API key. Docs: https://docs.activeprospect.com/docs/trustedform-claim-api
+ * using the site's API key (set server-side via the TRUSTEDFORM_API_KEY env
+ * var). Docs: https://docs.activeprospect.com/docs/trustedform-claim-api
  *
  * Returns null-equivalent statuses when no key is configured so callers can
  * persist the lead regardless — certificate claiming must never block capture.
@@ -19,10 +20,16 @@ export async function claimCertificate(
   lead: Partial<Lead> & { owner?: string }
 ): Promise<TrustedFormClaim> {
   const attemptedAt = new Date().toISOString();
-  const settings: UserSettings = lead.owner
-    ? await getUserSettings(lead.owner)
-    : { trustedFormApiKey: null, trustedFormApiKeyUpdatedAt: null };
-  const apiKey = settings.trustedFormApiKey;
+
+  // Key resolution is env-driven (per-user storage isn't supported by the
+  // shared DB). Guarded so a lookup failure can never block capture.
+  let apiKey: string | null = null;
+  try {
+    const settings = await getUserSettings(lead.owner);
+    apiKey = settings.trustedFormApiKey;
+  } catch {
+    apiKey = process.env.TRUSTEDFORM_API_KEY?.trim() ?? null;
+  }
 
   if (!apiKey) {
     return { attemptedAt, status: "not_configured" };

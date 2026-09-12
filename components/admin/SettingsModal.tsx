@@ -84,10 +84,7 @@ function ApiKeyTab() {
   const [loading, setLoading] = useState(true);
   const [configured, setConfigured] = useState(false);
   const [keyPreview, setKeyPreview] = useState<string | null>(null);
-  const [usingEnvFallback, setUsingEnvFallback] = useState(false);
-  const [input, setInput] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState("");
+  const [source, setSource] = useState<string>("env");
 
   async function load() {
     setLoading(true);
@@ -95,11 +92,11 @@ function ApiKeyTab() {
       const res = await apiFetch<{
         configured: boolean;
         keyPreview: string | null;
-        usingEnvFallback?: boolean;
+        source?: string;
       }>("/api/settings/trustedform");
       setConfigured(res.configured);
       setKeyPreview(res.keyPreview);
-      setUsingEnvFallback(Boolean(res.usingEnvFallback));
+      setSource(res.source ?? "env");
     } finally {
       setLoading(false);
     }
@@ -107,41 +104,6 @@ function ApiKeyTab() {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { load(); }, []);
-
-  async function save() {
-    setBusy(true);
-    setMessage("");
-    try {
-      await apiFetch("/api/settings/trustedform", {
-        method: "POST",
-        body: JSON.stringify({ apiKey: input }),
-      });
-      setInput("");
-      setMessage("API key saved. New leads will use it for certificate claiming.");
-      await load();
-    } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Save failed.");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function reset() {
-    setBusy(true);
-    setMessage("");
-    try {
-      await apiFetch("/api/settings/trustedform", {
-        method: "POST",
-        body: JSON.stringify({ action: "reset" }),
-      });
-      setMessage("API key removed from your account.");
-      await load();
-    } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Reset failed.");
-    } finally {
-      setBusy(false);
-    }
-  }
 
   if (loading) {
     return <Loader2 className="mx-auto mt-10 h-7 w-7 animate-spin text-navy-600" />;
@@ -152,54 +114,27 @@ function ApiKeyTab() {
       <div>
         <h3 className="font-bold text-navy-900">ActiveProspect / TrustedForm API Key</h3>
         <p className="mt-1 text-sm text-slate-500">
-          Paste your key once — it stays on your account across all devices until you remove it.
+          Managed server-side via the <code className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs">TRUSTEDFORM_API_KEY</code> deployment environment variable — there is nothing to paste per account.
         </p>
       </div>
 
       {configured ? (
         <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
           <p className="flex items-center gap-2 text-sm font-bold text-emerald-800">
-            <CheckCircle2 className="h-5 w-5" /> Key configured ({keyPreview})
+            <CheckCircle2 className="h-5 w-5" /> Key active ({keyPreview})
           </p>
-        </div>
-      ) : usingEnvFallback ? (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
-          <p className="text-sm font-medium text-amber-800">
-            A server-level fallback key is active. Save your own key below to use yours instead.
+          <p className="mt-1 text-xs text-emerald-700">
+            New form submissions automatically claim/retain their TrustedForm certificate.
           </p>
         </div>
       ) : (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-4">
-          <p className="text-sm font-medium text-red-700">
-            No key configured. Certificates are stored but not claimed/retained.
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+          <p className="text-sm font-medium text-amber-800">
+            No TrustedForm key configured. Certificates are still captured, but they won&apos;t be claimed/retained until you set{" "}
+            <code className="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-xs">TRUSTEDFORM_API_KEY</code> in the deployment environment.
           </p>
         </div>
       )}
-
-      <div>
-        <label htmlFor="tf-key" className="input-label">Your TrustedForm API key</label>
-        <input id="tf-key" type="password" value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="e.g. 9F1A2B3C4D5E6F70819263..." autoComplete="off"
-          className="input-field font-mono text-sm" />
-      </div>
-
-      {message && (
-        <p className="rounded-lg bg-slate-100 px-4 py-3 text-sm font-medium text-slate-700">{message}</p>
-      )}
-
-      <div className="flex flex-wrap gap-2">
-        <button onClick={save} disabled={busy || !input.trim()}
-          className="inline-flex items-center gap-2 rounded-xl bg-navy-900 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-navy-800 disabled:opacity-50">
-          {busy && <Loader2 className="h-4 w-4 animate-spin" />} Save Key
-        </button>
-        {configured && (
-          <button onClick={reset} disabled={busy}
-            className="rounded-xl border border-red-300 px-5 py-2.5 text-sm font-bold text-red-600 transition hover:bg-red-50 disabled:opacity-50">
-            Remove Key
-          </button>
-        )}
-      </div>
     </div>
   );
 }

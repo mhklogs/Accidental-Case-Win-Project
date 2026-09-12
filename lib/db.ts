@@ -146,37 +146,25 @@ export async function getLeadById(id: string): Promise<Lead | null> {
 
 /* ============================ SETTINGS ============================ */
 
-export async function getUserSettings(username: string): Promise<UserSettings> {
-  const sb = getSupabase();
-  const { data } = await sb
-    .from("settings")
-    .select("*")
-    .eq("username", username)
-    .single();
+// The TrustedForm API key is managed server-side via the TRUSTEDFORM_API_KEY
+// deployment env var (single ActiveProspect account for this site). The shared
+// Supabase project's `settings` table is key/data (used by another app), so we
+// never read or write per-user keys there.
+
+const envTrustedFormApiKey = (): string | null =>
+  process.env.TRUSTEDFORM_API_KEY?.trim() || null;
+
+export async function getUserSettings(_username?: string): Promise<UserSettings> {
   return {
-    trustedFormApiKey: data?.trusted_form_api_key ?? process.env.TRUSTEDFORM_API_KEY?.trim() ?? null,
-    trustedFormApiKeyUpdatedAt: data?.updated_at ?? null,
+    trustedFormApiKey: envTrustedFormApiKey(),
+    trustedFormApiKeyUpdatedAt: null,
   };
 }
 
-export async function setTrustedFormApiKey(
-  username: string,
-  apiKey: string
-): Promise<UserSettings> {
-  const sb = getSupabase();
-  const now = new Date().toISOString();
-  const { error } = await sb.from("settings").upsert(
-    { username, trusted_form_api_key: apiKey, updated_at: now },
-    { onConflict: "username" }
-  );
-  if (error) throw error;
-  return { trustedFormApiKey: apiKey, trustedFormApiKeyUpdatedAt: now };
+export async function setTrustedFormApiKey(): Promise<UserSettings> {
+  return getUserSettings();
 }
 
-export async function clearTrustedFormApiKey(
-  username: string
-): Promise<UserSettings> {
-  const sb = getSupabase();
-  await sb.from("settings").delete().eq("username", username);
-  return { trustedFormApiKey: null, trustedFormApiKeyUpdatedAt: null };
+export async function clearTrustedFormApiKey(): Promise<UserSettings> {
+  return getUserSettings();
 }
