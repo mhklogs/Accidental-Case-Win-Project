@@ -95,21 +95,14 @@ export default function CertificatePage() {
   useEffect(() => {
     async function fetchLead() {
       try {
-        const token = localStorage.getItem("acw.admin.token");
-        const res = await fetch(`/api/leads/${params.id}`, {
-          headers: token ? { "x-admin-token": token } : {},
-        });
+        const res = await fetch(`/api/certificate/${params.id}`);
         if (!res.ok) {
-          if (res.status === 401) {
-            router.push("/admin");
-            return;
-          }
           throw new Error("Not found");
         }
         const data = await res.json();
         setLead(data.lead);
       } catch {
-        setError("Could not load certificate. You may need to log in first.");
+        setError("Could not load certificate. This certificate may not exist or is no longer available.");
       } finally {
         setLoading(false);
       }
