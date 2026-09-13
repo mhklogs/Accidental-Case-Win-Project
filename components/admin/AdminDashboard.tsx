@@ -100,6 +100,37 @@ export default function AdminDashboard({
               <Settings className="h-4 w-4" /> Settings
             </button>
             <button
+              onClick={async () => {
+                // eslint-disable-next-line no-alert
+                const answer = window.prompt(
+                  "Delete ALL leads except the newest? Type DELETE to confirm."
+                );
+                if (answer !== "DELETE") return;
+                try {
+                  const token = localStorage.getItem("acw.admin.token");
+                  const res = await fetch("/api/leads", {
+                    method: "DELETE",
+                    headers: { "x-admin-token": token ?? "" },
+                  });
+                  if (!res.ok) {
+                    const j = await res.json().catch(() => null);
+                    // eslint-disable-next-line no-alert
+                    window.alert(j?.error ?? "Delete failed.");
+                    return;
+                  }
+                  // eslint-disable-next-line no-alert
+                  window.alert("All leads except the newest were deleted.");
+                  await Promise.resolve(loadLeads());
+                } catch {
+                  // eslint-disable-next-line no-alert
+                  window.alert("Delete failed.");
+                }
+              }}
+              className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-100"
+            >
+              Clear all (keep newest)
+            </button>
+            <button
               onClick={onLogout}
               className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-navy-800"
             >

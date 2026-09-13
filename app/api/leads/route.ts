@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { addLead, getLeads, type Lead } from "@/lib/db";
+import { addLead, clearLeadsExceptNewest, getLeads, type Lead } from "@/lib/db";
 import { claimCertificate } from "@/lib/trustedform";
 import { authenticate } from "@/lib/auth";
 import { getUser, getPrimaryUsername } from "@/lib/users";
@@ -131,4 +131,23 @@ export async function POST(req: Request) {
     },
     { status: 201 }
   );
+}
+
+// DELETE /api/leads — hard-deletes every lead owned by the caller except the
+// single newest one (fresh-test placeholder). Returns how many were removed.
+export async function DELETE(req: Request) {
+  const username = authenticate(req);
+  if (!username) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+
+  try {
+    const deleted = await clearLeadsExceptNewest(username);
+    return NextResponse.json({ deleted, kept: true });
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Delete failed." },
+      { status: 500 }
+    );
+  }
 }

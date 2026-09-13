@@ -156,6 +156,31 @@ export async function updateLeadTrustedFormClaim(
   if (error) throw error;
 }
 
+/**
+ * Deletes every lead owned by `owner` except the single newest one.
+ * Returns the number of rows deleted.
+ */
+export async function clearLeadsExceptNewest(owner: string): Promise<number> {
+  const sb = getSupabase();
+  // Newest lead wins; then delete everything else on this owner.
+  const { data: newest, error: getError } = await sb
+    .from("leads")
+    .select("id")
+    .eq("owner", owner)
+    .order("created_at", { ascending: false })
+    .limit(1);
+  if (getError) throw getError;
+  const keepId = newest?.[0]?.id;
+  if (!keepId) return 0;
+  const { count, error } = await sb
+    .from("leads")
+    .delete({ count: "exact" })
+    .eq("owner", owner)
+    .neq("id", keepId);
+  if (error) throw error;
+  return count ?? 0;
+}
+
 /* ============================ SETTINGS ============================ */
 
 // The TrustedForm API key is managed server-side via the TRUSTEDFORM_API_KEY
