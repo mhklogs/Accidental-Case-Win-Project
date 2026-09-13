@@ -27,6 +27,7 @@ export default function LeadDrawer({
 }) {
   const [lead, setLead] = useState<LeadDetail | null>(null);
   const [error, setError] = useState("");
+  const [claiming, setClaiming] = useState(false);
 
   useEffect(() => {
     // Fetch the full record (including claim metadata) by searching for it.
@@ -40,6 +41,23 @@ export default function LeadDrawer({
       })
       .catch((err) => setError(err instanceof Error ? err.message : "Load failed."));
   }, [leadId]);
+
+  async function handleRetryClaim() {
+    if (!lead) return;
+    setClaiming(true);
+    setError("");
+    try {
+      const res = await apiFetch<{ leadId: string; claim: ClaimMeta }>(
+        `/api/leads/${lead.id}/claim`,
+        { method: "POST" }
+      );
+      setLead({ ...lead, trustedFormClaim: res.claim });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Retry failed.");
+    } finally {
+      setClaiming(false);
+    }
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-navy-950/60 backdrop-blur-sm" onClick={onClose}>
@@ -109,18 +127,45 @@ export default function LeadDrawer({
                   <ShieldAlert className="h-4 w-4 text-gold-600" /> Claim Status
                 </h3>
                 <ClaimPanel claim={lead.trustedFormClaim} />
+                {lead.trustedFormCertUrl && (
+                  <button
+                    onClick={handleRetryClaim}
+                    disabled={claiming}
+                    className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-navy-300 bg-navy-50 px-4 py-2.5 text-sm font-bold text-navy-800 transition hover:bg-navy-100 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {claiming ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" /> Retrying…
+                      </>
+                    ) : (
+                      <>
+                        <ShieldAlert className="h-4 w-4" /> Retry claim / retain
+                      </>
+                    )}
+                  </button>
+                )}
               </section>
 
-              {/* View Certificate */}
-              <a
-                href={`/certificate/${lead.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 rounded-xl border-2 border-navy-900 bg-navy-900 px-5 py-3.5 text-sm font-bold text-white shadow transition hover:bg-navy-800 active:scale-[0.98]"
-              >
-                <FileText className="h-4 w-4" />
-                View / Download Certificate
-              </a>
+              {/* View Certificate — opens the real ActiveProspect cert */}
+              {lead.trustedFormCertUrl ? (
+                <a
+                  href={lead.trustedFormCertUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 rounded-xl border-2 border-navy-900 bg-navy-900 px-5 py-3.5 text-sm font-bold text-white shadow transition hover:bg-navy-800 active:scale-[0.98]"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Open TrustedForm Certificate
+                </a>
+              ) : (
+                <button
+                  disabled
+                  className="flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl border-2 border-slate-200 bg-slate-100 px-5 py-3.5 text-sm font-bold text-slate-400"
+                >
+                  <FileText className="h-4 w-4" />
+                  No TrustedForm certificate on this lead
+                </button>
+              )}
             </div>
           )}
         </div>

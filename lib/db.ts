@@ -144,6 +144,18 @@ export async function getLeadById(id: string): Promise<Lead | null> {
   };
 }
 
+export async function updateLeadTrustedFormClaim(
+  id: string,
+  claim: TrustedFormClaim
+): Promise<void> {
+  const sb = getSupabase();
+  const { error } = await sb
+    .from("leads")
+    .update({ trusted_form_claim: JSON.stringify(claim) })
+    .eq("id", id);
+  if (error) throw error;
+}
+
 /* ============================ SETTINGS ============================ */
 
 // The TrustedForm API key is managed server-side via the TRUSTEDFORM_API_KEY

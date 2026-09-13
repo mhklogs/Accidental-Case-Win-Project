@@ -46,36 +46,62 @@ export async function claimCertificate(
   }
 
   try {
-    const body = new URLSearchParams();
-    body.set("vendor", process.env.TRUSTEDFORM_VENDOR || "Accident Care Helpline");
-    if (lead.email) body.set("email", lead.email);
-    if (lead.phone) body.set("phone", lead.phone);
-    if (lead.name) body.set("name", lead.name);
+    // TrustedForm Certificate API v4.0 (Self-Service plan accounts).
+    // v4.0 requires a JSON body with a `retain` operation plus a mandatory
+    // `match_lead` operation and the `api-version: 4.0` header. The legacy
+    // form-urlencoded v2/v3 format is rejected with
+    // `400 {"reason":"No valid products detected"}` on v4.0 accounts.
+    const email = lead.email?.trim().toLowerCase() || undefined;
+    let phone = lead.phone?.trim() || undefined;
+    if (phone) {
+      phone = phone.replace(/[\s\-()]/g, "");
+    }
+
+    const matchLead: Record<string, string> = {};
+    if (email) matchLead.email = email;
+    if (phone) matchLead.phone = phone;
 
     const res = await fetch(`${CLAIM_BASE}/${certId}`, {
       method: "POST",
       headers: {
         Authorization: `Basic ${Buffer.from(`API:${apiKey}`).toString("base64")}`,
-        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Type": "application/json",
         Accept: "application/json",
+        "api-version": "4.0",
       },
-      body: body.toString(),
+      body: JSON.stringify({ retain: {}, match_lead: matchLead }),
       signal: AbortSignal.timeout(10_000),
     });
 
-    let parsed: unknown = null;
+    let parsed: Record<string, unknown> | null = null;
     try {
-      parsed = await res.json();
+      parsed = (await res.json()) as Record<string, unknown>;
     } catch {
       /* non-JSON response body */
     }
 
+    if (res.ok && parsed?.outcome === "success") {
+      return {
+        attemptedAt,
+        status: "claimed",
+        httpStatus: res.status,
+        response: parsed,
+        error: undefined,
+      };
+    }
+
+    const reason =
+      parsed && typeof parsed.reason === "string" ? parsed.reason : undefined;
     return {
       attemptedAt,
-      status: res.ok ? "claimed" : "failed",
+      status: "failed",
       httpStatus: res.status,
       response: parsed,
-      error: res.ok ? undefined : `TrustedForm claim failed with HTTP ${res.status}.`,
+      error:
+        reason ??
+        (res.ok
+          ? "TrustedForm could not retain this certificate."
+          : `TrustedForm claim failed with HTTP ${res.status}.`),
     };
   } catch (err) {
     return {
