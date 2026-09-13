@@ -145,9 +145,10 @@ export async function DELETE(req: Request) {
     const deleted = await clearLeadsExceptNewest(username);
     return NextResponse.json({ deleted, kept: true });
   } catch (err) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Delete failed." },
-      { status: 500 }
-    );
+    const message =
+      err instanceof Error
+        ? err.message
+        : (err as { message?: string } | null)?.message ?? "Delete failed.";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
