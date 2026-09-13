@@ -5,6 +5,7 @@ export const dynamic = "force-dynamic";
 
 const ALLOWED = [
   "id",
+  "owner",
   "name",
   "email",
   "phone",
@@ -17,6 +18,7 @@ const ALLOWED = [
 
 export interface PublicCertificateLead {
   id: string;
+  owner: string;
   name: string;
   email: string;
   phone: string;
@@ -57,6 +59,7 @@ export async function GET(
 
   const lead: PublicCertificateLead = {
     id: obj.id as string,
+    owner: (obj.owner as string) ?? "",
     name: (obj.name as string) ?? "—",
     email: (obj.email as string) ?? "",
     phone: (obj.phone as string) ?? "",
