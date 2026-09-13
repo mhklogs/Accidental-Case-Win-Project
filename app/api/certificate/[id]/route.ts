@@ -3,7 +3,7 @@ import { getSupabase } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
-const ALLOWED = new Set([
+const ALLOWED = [
   "id",
   "name",
   "email",
@@ -13,7 +13,7 @@ const ALLOWED = new Set([
   "trusted_form_cert_url",
   "trusted_form_claim",
   "created_at",
-]);
+];
 
 export interface PublicCertificateLead {
   id: string;
