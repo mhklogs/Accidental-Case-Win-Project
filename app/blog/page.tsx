@@ -9,6 +9,14 @@ export const metadata = {
 
 const posts = [
   {
+    slug: "car-accident-settlement-amount",
+    title: "How Much Is My Car Accident Case Worth?",
+    excerpt:
+      "Settlement value depends on more than your bills. Here's how car accident settlements are calculated, what you can recover, and why early offers are usually too low.",
+    date: "September 16, 2026",
+    readTime: "7 min read",
+  },
+  {
     slug: "statute-of-limitations-car-accident-claims",
     title: "Statute of Limitations for Car Accident Claims: How Long Do You Have to File?",
     excerpt:

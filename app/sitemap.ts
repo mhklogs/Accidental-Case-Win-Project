@@ -6,6 +6,10 @@ const lastModified = new Date();
 
 const blogPosts = [
   {
+    slug: "car-accident-settlement-amount",
+    priority: 0.8 as const,
+  },
+  {
     slug: "statute-of-limitations-car-accident-claims",
     priority: 0.8 as const,
   },
