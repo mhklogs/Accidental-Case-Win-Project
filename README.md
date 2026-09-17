@@ -1,11 +1,12 @@
-# Accident Care Helpline 🏛️
+# Accident Care Helpline
 
 Production-ready **lead-generation platform** for personal-injury case intake —
-public landing page, multi-user admin dashboard, and full **ActiveProspect
-TrustedForm** consent-certificate integration.
+public SEO landing pages, a multi-user admin dashboard, per-account lead
+attribution, and full **ActiveProspect TrustedForm** consent-certificate
+integration.
 
 Built with Next.js 14 (App Router) · TypeScript · Tailwind CSS · lucide-react ·
-zero-cost atomic JSON storage.
+crash-safe atomic JSON storage (swappable for SQLite/Postgres — see docs).
 
 ---
 
@@ -13,7 +14,7 @@ zero-cost atomic JSON storage.
 
 ```bash
 npm install
-cp .env.local.example .env.local    # then edit values
+cp .env.local.example .env.local    # then set ADMIN_PASSWORD and edit values
 npm run dev                         # http://localhost:3000
 ```
 
@@ -23,46 +24,50 @@ Production:
 npm run build && npm start
 ```
 
-### Default Login (`/admin`)
+### First Admin Login (`/admin`)
 
-| Username | Password |
-|---|---|
-| `umar@0987654321` | `um@r#0987654321` |
+On first login the app seeds the initial account from environment variables
+(defaults: `admin` / `admin`):
 
-> Seeded automatically on first login from `ADMIN_USERNAME` / `ADMIN_PASSWORD`.
-> **Change it right away** in Settings → Change Password, and set your
-> Security Questions to enable self-service resets.
+| Variable          | Default  | Notes                                  |
+|-------------------|----------|----------------------------------------|
+| `ADMIN_USERNAME`  | `admin`  | Lowercased on seed                     |
+| `ADMIN_PASSWORD`  | `admin`  | **Change it right away**               |
+
+Set a strong password in **Settings → Change Password** and configure your
+Security Questions to enable self-service resets.
 
 ## Feature Highlights
 
-- **Landing page `/`** — navy/gold legal brand, hero + trust sections, intake
-  form (Name, Phone, Email, Zip, State), official TrustedForm JS tag captures
-  a certificate URL into a hidden field on every submission, thank-you page.
+- **SEO landing pages** — evergreen homepage plus per-case-type, per-state, and
+  combined case-type × state pages, auto-generated sitemap/robots, self-
+  referencing canonicals, JSON-LD, and FAQ blocks.
+- **Lead capture `/`** — navy/gold legal brand, hero + trust sections, intake
+  form (Name, Phone, Email, Zip, State), official TrustedForm JS tag captures a
+  certificate URL into every submission, dedicated thank-you page.
 - **Multi-user dashboard `/admin`** — unlimited accounts; each user sees only
-  their own leads; same account can be logged in on any number of devices at
-  once; leads table with search, state/date filters, pagination; detail drawer
-  showing certificate link + claim metadata (status, HTTP result, raw API
-  response).
-- **Per-user TrustedForm API keys** — each account pastes its ActiveProspect
-  key once in Settings; it persists across sessions/devices until removed;
-  new leads are automatically claimed/retained server-side with that key
-  (optional global fallback via `TRUSTEDFORM_API_KEY`).
-- **Security** — salted scrypt password hashing, signed expiring session
-  tokens, security-question based self-service password reset, masked key
-  previews, username-enumeration-safe responses, admin pages `noindex`.
-- **Reliability** — serialized atomic writes (crash-safe JSON files); a
-  TrustedForm outage never blocks lead capture.
+  their own leads; same account can be signed in on any number of devices at
+  once; leads table with search, state/date filters and pagination; CSV/JSON/XLSX
+  export; detail drawer showing the certificate link + claim metadata.
+- **Per-user TrustedForm API keys** — each account pastes its ActiveProspect key
+  once in Settings; it persists across sessions/devices and new leads are claimed
+  server-side (optional global fallback via `TRUSTEDFORM_API_KEY`).
+- **Security** — salted scrypt password hashing, signed expiring session tokens,
+  security-question based resets, masked key previews, username-enumeration-safe
+  responses, admin pages `noindex`.
+- **Reliability** — serialized atomic JSON writes; a TrustedForm outage never
+  blocks lead capture.
 
 ## Configuration (`.env.local`)
 
-See `.env.local.example`. Key variables:
-
-```
-ADMIN_USERNAME=umar@0987654321     # first-run seed (optional)
-ADMIN_PASSWORD=um@r#0987654321     # first-run seed (CHANGE IT)
-TRUSTEDFORM_API_KEY=               # optional server-wide fallback key
-DATA_DIR=                          # optional storage override
-```
+| Variable | Required | Default | Purpose |
+|---|---|---|---|
+| `ADMIN_USERNAME` | no | `admin` | First-run admin seed |
+| `ADMIN_PASSWORD` | no | `admin` | First-run admin seed (**change in Settings**) |
+| `TRUSTEDFORM_API_KEY` | no | — | Server-wide fallback key for claim retention |
+| `DATA_DIR` | no | `./data` | Runtime data directory |
+| `NEXT_PUBLIC_SUPABASE_URL` | no | — | Optional hosted DB (see docs/02 §6) |
+| `SUPABASE_SERVICE_ROLE_KEY` | no | — | Optional hosted DB (see docs/02 §6) |
 
 Runtime data lives in `data/` (`leads.json`, `users.json`, `settings.json`) —
 gitignored, portable, and swappable for SQLite/Postgres later (see docs).
@@ -94,7 +99,7 @@ Full documentation set lives in [`docs/`](docs/00-index.md):
 
 ## Deploying
 
-Any Node host works (Vercel, Railway, Fly.io, VPS with `npm start`). Point
-your domain at it, log into `/admin`, paste your TrustedForm key once, and
-you're live. On Vercel-style serverless platforms replace the JSON store with
-a hosted DB first (see docs/02 §6).
+Any Node host works (Vercel, Railway, Fly.io, VPS with `npm start`). Point your
+domain at it, log into `/admin`, change the password, paste your TrustedForm
+key once, and you're live. On Vercel-style serverless platforms replace the JSON
+store with a hosted DB first (see docs/02 §6).

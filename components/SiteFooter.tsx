@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Phone, Mail, Globe, Scale } from "lucide-react";
 
 type SocialLink = {
@@ -26,57 +27,134 @@ const SocialIcon = ({ type }: { type: string }) => {
   return icons[type] || null;
 };
 
+const aboutLinks = [
+  { href: "/#how", label: "How It Works" },
+  { href: "/#areas", label: "Practice Areas" },
+  { href: "/#why", label: "Why Choose Us" },
+  { href: "/#reviews", label: "Testimonials" },
+  { href: "/#faq", label: "FAQ" },
+];
+
+const serviceLinks = [
+  { href: "/case-types/car-accidents", label: "Car Accident Lawyers" },
+  { href: "/case-types/truck-accidents", label: "Truck Accident Lawyers" },
+  { href: "/case-types/motorcycle-crashes", label: "Motorcycle Accident Lawyers" },
+  { href: "/case-types/slip-and-fall", label: "Slip & Fall Lawyers" },
+  { href: "/case-types/workplace-injury", label: "Workplace Injury Lawyers" },
+];
+
+const legalLinks = [
+  { href: "/terms", label: "Terms of Service" },
+  { href: "/privacy", label: "Privacy Policy" },
+];
+
 export default function SiteFooter() {
   const [links, setLinks] = useState<SocialLink[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
+
   useEffect(() => {
+    setIsAdmin(typeof window !== "undefined" && window.location.pathname.startsWith("/admin"));
     fetch("/api/social-links")
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => setLinks(d?.links ?? []))
       .catch(() => {});
   }, []);
 
+  if (isAdmin) return null;
+
   return (
-    <footer className="border-t border-slate-200 bg-slate-50">
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-        <div className="flex flex-col items-center gap-6 text-center">
-          <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-navy-900">
-              <Scale className="h-4 w-4 text-gold-400" />
-            </span>
-            <div className="text-left">
-              <p className="text-sm font-bold leading-tight text-navy-900">Accident Care Helpline</p>
-              <p className="text-xs text-slate-500">Get the compensation you deserve</p>
+    <footer className="border-t border-slate-200 bg-navy-950 py-12">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="grid gap-10 md:grid-cols-4">
+          <div className="md:col-span-1">
+            <Link href="/" className="flex items-center gap-2.5">
+              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-gold-400 to-gold-600 shadow-lifted">
+                <Scale className="h-5 w-5 text-navy-950" strokeWidth={2.5} />
+              </span>
+              <span className="font-heading text-lg font-bold uppercase tracking-tight text-white">
+                Accident<span className="text-gold-400">Care</span>Helpline
+              </span>
+            </Link>
+            <p className="mt-4 text-sm leading-relaxed text-slate-400">
+              Connecting injury victims with experienced personal injury attorneys
+              across the United States. Free case reviews, no upfront costs.
+            </p>
+            <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+              <a href="tel:+17139197830" className="inline-flex items-center gap-2 font-semibold text-slate-300 transition hover:text-gold-300">
+                <Phone className="h-4 w-4 text-gold-500" /> (713) 919-7830
+              </a>
+              <a href="mailto:Info@accidentcarehelpline.com" className="inline-flex items-center gap-2 font-semibold text-slate-300 transition hover:text-gold-300">
+                <Mail className="h-4 w-4 text-gold-500" /> Info@accidentcarehelpline.com
+              </a>
             </div>
+            {links.length > 0 && (
+              <div className="mt-5 flex gap-3">
+                {links.map((l) => (
+                  <a
+                    key={l.id}
+                    href={l.url}
+                    target={l.url.startsWith("http") ? "_blank" : undefined}
+                    rel={l.url.startsWith("http") ? "noopener noreferrer" : undefined}
+                    aria-label={l.label || l.type}
+                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-300 transition hover:border-gold-400/40 hover:text-white"
+                  >
+                    <SocialIcon type={l.type} />
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
-
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm">
-            <a href="tel:+17139197830" className="inline-flex items-center gap-2 font-semibold text-slate-700 transition hover:text-navy-900">
-              <Phone className="h-4 w-4 text-gold-500" /> (713) 919-7830
-            </a>
-            <span className="hidden h-4 w-px bg-slate-300 sm:block" />
-            <a href="mailto:Info@accidentcarehelpline.com" className="inline-flex items-center gap-2 font-semibold text-slate-700 transition hover:text-navy-900">
-              <Mail className="h-4 w-4 text-gold-500" /> Info@accidentcarehelpline.com
-            </a>
-          </div>
-
-          {links.length > 0 && (
-            <div className="flex gap-3">
-              {links.map((l) => (
-                <a
-                  key={l.id}
-                  href={l.url}
-                  target={l.url.startsWith("http") ? "_blank" : undefined}
-                  rel={l.url.startsWith("http") ? "noopener noreferrer" : undefined}
-                  aria-label={l.label || l.type}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-navy-900 hover:text-white"
-                >
-                  <SocialIcon type={l.type} />
-                </a>
+          <div>
+            <h3 className="font-heading text-sm font-bold uppercase tracking-wide text-white">About</h3>
+            <ul className="mt-4 space-y-2 text-sm text-slate-400">
+              {aboutLinks.map((l) => (
+                <li key={l.href}><Link href={l.href} className="transition hover:text-gold-300">{l.label}</Link></li>
               ))}
-            </div>
-          )}
-
-          <p className="text-xs text-slate-400">
+            </ul>
+          </div>
+          <div>
+            <h3 className="font-heading text-sm font-bold uppercase tracking-wide text-white">Find Services</h3>
+            <ul className="mt-4 space-y-2 text-sm text-slate-400">
+              {serviceLinks.map((l) => (
+                <li key={l.href}><Link href={l.href} className="transition hover:text-gold-300">{l.label}</Link></li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h3 className="font-heading text-sm font-bold uppercase tracking-wide text-white">Legal</h3>
+            <ul className="mt-4 space-y-2 text-sm text-slate-400">
+              {legalLinks.map((l) => (
+                <li key={l.href}><Link href={l.href} className="transition hover:text-gold-300">{l.label}</Link></li>
+              ))}
+              <li>
+                <Link
+                  href="/admin"
+                  aria-label="Staff login"
+                  className="text-slate-500 transition hover:text-gold-300"
+                >
+                  Staff Login
+                </Link>
+              </li>
+              <li>
+                <Link href="/blog" className="transition hover:text-gold-300">Blog</Link>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div className="mt-10 border-t border-white/10 pt-6">
+          <p className="text-xs leading-relaxed text-slate-400">
+            DISCLAIMER: Accident Care Helpline is a privately owned website and is
+            not a law firm, attorney referral service, or government agency. This
+            website is intended to connect consumers with participating attorneys
+            and legal professionals. Submitting your information constitutes
+            permission for an attorney or representative to contact you regarding
+            your legal inquiry, including details about potential legal services
+            and representation. Legal services are provided only through a signed
+            agreement with an attorney. Past results do not guarantee future
+            outcomes, and every case is unique. This is attorney advertising and
+            does not establish an attorney-client relationship.
+          </p>
+          <p className="mt-4 text-center text-sm text-slate-500">
             © {new Date().getFullYear()} Accident Care Helpline. All rights reserved.
           </p>
         </div>
