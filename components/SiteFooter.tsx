@@ -127,6 +127,12 @@ export default function SiteFooter() {
                 <li key={l.href}><Link href={l.href} className="transition hover:text-gold-300">{l.label}</Link></li>
               ))}
               <li>
+                <Link href="/blog" className="transition hover:text-gold-300">Blog</Link>
+              </li>
+              <li>
+                <Link href="/faq" className="transition hover:text-gold-300">FAQ</Link>
+              </li>
+              <li>
                 <Link
                   href="/admin"
                   aria-label="Staff login"
@@ -134,9 +140,6 @@ export default function SiteFooter() {
                 >
                   Staff Login
                 </Link>
-              </li>
-              <li>
-                <Link href="/blog" className="transition hover:text-gold-300">Blog</Link>
               </li>
             </ul>
           </div>
@@ -154,7 +157,8 @@ export default function SiteFooter() {
             outcomes, and every case is unique. This is attorney advertising and
             does not establish an attorney-client relationship.
           </p>
-          <p className="mt-4 text-center text-sm text-slate-500">
+          <p className="mt-4 text-center text-sm text-slate-400">
+            © {new Date().getFullYear()} Accident Care Helpline. All rights reserved.
             © {new Date().getFullYear()} Accident Care Helpline. All rights reserved.
           </p>
         </div>
