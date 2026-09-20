@@ -88,6 +88,7 @@ export default function LeadDrawer({
                     ["Email", lead.email],
                     ["State", lead.state],
                     ["Zip Code", lead.zip],
+                    ["IP Address", lead.ip ?? "—"],
                     ["Submitted", new Date(lead.createdAt).toLocaleString()],
                     ["Owner Account", lead.owner],
                   ].map(([label, value]) => (

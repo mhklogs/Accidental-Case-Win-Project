@@ -18,6 +18,7 @@ export type Lead = {
   state: string;
   trustedFormCertUrl: string | null;
   trustedFormClaim: TrustedFormClaim | null;
+  ip: string | null;
   createdAt: string;
 };
 
@@ -71,6 +72,51 @@ export async function saveSocialLinks(links: SocialLink[]): Promise<SocialLink[]
 
 /* ============================ LEADS ============================ */
 
+// Until the `ip` column is added to the `leads` table (migration below), IPs
+// are parked here (rom_store jsonb, key "ach_lead_ips") so no lead data is lost.
+// Migration: ALTER TABLE leads ADD COLUMN IF NOT EXISTS ip text;
+const LEAD_IP_KEY = "ach_lead_ips";
+
+async function getLeadIpMap(): Promise<Map<string, string>> {
+  const sb = getSupabase();
+  const { data, error } = await sb
+    .from("rom_store")
+    .select("data")
+    .eq("key", LEAD_IP_KEY)
+    .maybeSingle();
+  if (error) return new Map();
+  const value = data?.data;
+  if (!Array.isArray(value)) return new Map();
+  return new Map(
+    value
+      .filter((e: unknown) => e && typeof e === "object")
+      .map((e) => {
+        const rec = e as { leadId?: string; ip?: string };
+        return [rec.leadId ?? "", rec.ip ?? ""] as const;
+      })
+  );
+}
+
+async function saveLeadIp(leadId: string, ip: string | null): Promise<void> {
+  if (!ip) return;
+  const sb = getSupabase();
+  const map = await getLeadIpMap();
+  map.set(leadId, ip);
+  const { error } = await sb.from("rom_store").upsert({
+    key: LEAD_IP_KEY,
+    data: Array.from(map, ([id, value]) => ({ leadId: id, ip: value })),
+    updated_at: new Date().toISOString(),
+  });
+  if (error) throw error;
+}
+
+async function withFallbackIp(lead: Lead): Promise<Lead> {
+  if (lead.ip) return lead;
+  const map = await getLeadIpMap();
+  lead.ip = map.get(lead.id) ?? null;
+  return lead;
+}
+
 export async function getLeads(): Promise<Lead[]> {
   const sb = getSupabase();
   const { data, error } = await sb
@@ -78,7 +124,7 @@ export async function getLeads(): Promise<Lead[]> {
     .select("*")
     .order("created_at", { ascending: false });
   if (error) throw error;
-  return (data ?? []).map((r: Record<string, unknown>) => ({
+  const leads: Lead[] = (data ?? []).map((r: Record<string, unknown>) => ({
     id: r.id as string,
     owner: r.owner as string,
     name: r.name as string,
@@ -92,8 +138,11 @@ export async function getLeads(): Promise<Lead[]> {
           ? JSON.parse(r.trusted_form_claim as string)
           : r.trusted_form_claim) as TrustedFormClaim
       : null,
+    ip: (r.ip as string) ?? null,
     createdAt: r.created_at as string,
   }));
+  const ipMap = await getLeadIpMap();
+  return leads.map((l) => (l.ip ? l : { ...l, ip: ipMap.get(l.id) ?? null }));
 }
 
 export async function addLead(
@@ -110,14 +159,27 @@ export async function addLead(
     email: input.email,
     zip: input.zip,
     state: input.state,
+    ip: input.ip ?? null,
     trusted_form_cert_url: input.trustedFormCertUrl,
     trusted_form_claim: input.trustedFormClaim
       ? JSON.stringify(input.trustedFormClaim)
       : null,
     created_at: now,
   };
-  const { error } = await sb.from("leads").insert(row);
-  if (error) throw error;
+  let { error } = await sb.from("leads").insert(row);
+  if (
+    error &&
+    /Could not find the ['"]?ip['"]? column/i.test(error.message || "")
+  ) {
+    // `ip` column not migrated yet — retry without it, persist IP separately.
+    const { ip: _ip, ...rowWithoutIp } = row;
+    void _ip;
+    const { error: retryError } = await sb.from("leads").insert(rowWithoutIp);
+    if (retryError) throw retryError;
+    await saveLeadIp(id, input.ip ?? null);
+  } else if (error) {
+    throw error;
+  }
   return { ...input, id, createdAt: now };
 }
 
@@ -126,7 +188,7 @@ export async function getLeadById(id: string): Promise<Lead | null> {
   const { data, error } = await sb.from("leads").select("*").eq("id", id).single();
   if (error || !data) return null;
   const r = data as Record<string, unknown>;
-  return {
+  const lead: Lead = {
     id: r.id as string,
     owner: r.owner as string,
     name: r.name as string,
@@ -140,8 +202,10 @@ export async function getLeadById(id: string): Promise<Lead | null> {
           ? JSON.parse(r.trusted_form_claim as string)
           : r.trusted_form_claim) as TrustedFormClaim
       : null,
+    ip: (r.ip as string) ?? null,
     createdAt: r.created_at as string,
   };
+  return withFallbackIp(lead);
 }
 
 export async function updateLeadTrustedFormClaim(

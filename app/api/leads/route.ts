@@ -6,6 +6,16 @@ import { getUser, getPrimaryUsername } from "@/lib/users";
 
 export const dynamic = "force-dynamic";
 
+function getClientIp(req: Request): string | null {
+  const forwarded = req.headers.get("x-forwarded-for");
+  if (forwarded) return forwarded.split(",")[0].trim() || null;
+  const real = req.headers.get("x-real-ip");
+  if (real) return real.trim() || null;
+  const vercelForwarded = req.headers.get("x-vercel-forwarded-for");
+  if (vercelForwarded) return vercelForwarded.split(",")[0].trim() || null;
+  return null;
+}
+
 const US_STATES = new Set([
   "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA",
   "KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ",
@@ -120,7 +130,7 @@ export async function POST(req: Request) {
   // Claim/retain the certificate first so the result can be stored on the lead.
   const trustedFormClaim = await claimCertificate({ ...values, owner });
 
-  const lead = await addLead({ ...values, owner, trustedFormClaim });
+  const lead = await addLead({ ...values, owner, trustedFormClaim, ip: getClientIp(req) });
 
   return NextResponse.json(
     {

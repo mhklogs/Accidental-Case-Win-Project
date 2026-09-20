@@ -23,6 +23,7 @@ export type LeadRow = {
   trustedFormCertUrl: string | null;
   hasClaim?: boolean;
   claimStatus?: string | null;
+  ip?: string | null;
   createdAt: string;
 };
 
