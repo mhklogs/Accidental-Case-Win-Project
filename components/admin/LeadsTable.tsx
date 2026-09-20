@@ -220,6 +220,9 @@ export default function LeadsTable({
                         onClick={() => onSelect(lead)}
                       >
                         {lead.state} {lead.zip}
+                        {lead.ip && (
+                          <div className="mt-0.5 text-xs text-slate-400">IP: {lead.ip}</div>
+                        )}
                       </td>
                       <td
                         className="whitespace-nowrap cursor-pointer px-5 py-3.5 text-slate-500"
