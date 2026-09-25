@@ -159,7 +159,6 @@ export default function SiteFooter() {
           </p>
           <p className="mt-4 text-center text-sm text-slate-400">
             © {new Date().getFullYear()} Accident Care Helpline. All rights reserved.
-            © {new Date().getFullYear()} Accident Care Helpline. All rights reserved.
           </p>
         </div>
       </div>
